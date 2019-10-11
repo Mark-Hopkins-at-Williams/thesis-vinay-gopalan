@@ -1,2 +1,2 @@
-# thesis-vinay-gopalan
+# thesis vinay gopalan
 Vinay Gopalan's thesis project
