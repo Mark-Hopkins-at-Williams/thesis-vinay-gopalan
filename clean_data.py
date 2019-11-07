@@ -1,147 +1,171 @@
+import json
 
+class ConllToken:
+    def __init__(self, token_type):
+        self.token_type = token_type
+ 
+class EndOfSegment(ConllToken):
+    def __init__(self):
+        super().__init__("end")
+        
+    @staticmethod
+    def is_instance(token):
+        return token.token_type == "end"
+        
+    def __eq__(self, other):
+        return EndOfSegment.is_instance(other)
+    
 
+class Sentiment(ConllToken):
+    def __init__(self, sentiment):
+        super().__init__("sentiment")
+        self.sentiment = sentiment
+    
+    @staticmethod
+    def is_instance(token):
+        return token.token_type == "sentiment"
 
-def cluster_urls(instream):
+    def __eq__(self, other):
+        return (Sentiment.is_instance(other) and 
+                other.sentiment == self.sentiment)
+
+        
+class BasicToken(ConllToken):
+    def __init__(self, value):
+        super().__init__("basic")
+        self.value = value
+
+    @staticmethod
+    def is_instance(token):
+        return token.token_type == "basic"
+    
+    def __eq__(self, other):
+        return (BasicToken.is_instance(other) and 
+                other.value == self.value)
+    
+class URL(ConllToken):
+    def __init__(self, value):
+        super().__init__("url")
+        self.value = value
+
+    @staticmethod
+    def is_instance(token):
+        return token.token_type == "url"
+    
+    def __eq__(self, other):
+        return URL.is_instance(other) and other.value == self.value
+  
+class Username(ConllToken):
+    def __init__(self, value):
+        super().__init__("username")
+        self.value = value
+
+    @staticmethod
+    def is_instance(token):
+        return token.token_type == "username"
+    
+    def __eq__(self, other):
+        return Username.is_instance(other) and other.value == self.value
+
+     
+    
+def tokenize_conll(lines):
+    for line in lines:
+        if line.strip() == "":
+            yield EndOfSegment()
+        else:
+            fields = line.split("\t")
+            if fields[0] == "meta":
+                yield Sentiment(fields[2].strip())
+            else:
+                yield BasicToken(fields[0].strip())
+
+def cluster_urls(tokens):
     """ 
-    Generator for piecing together URL streams.
+    Generator for piecing together URLs in token streams.
 
     Reads from an instream, and if the instream has broken URL pieces
-    (identified by finding 'http') in conll format, the generator yields a complete URL.
+    (identified by finding 'http') in conll format, the generator yields 
+    a complete URL.
 
     """
-    complete = False
-    next_token = ""
-    url_flag = False
-    while not complete:
-        try:
-            line = next(instream)
-            fields = line.split('\t')
-            first_word = fields[0].strip()
-            next_token += first_word
-            if not url_flag and not first_word.startswith("http"):
-                yield next_token 
-                next_token = ""
-            elif first_word.startswith("http"):
-                url_flag = True
-            elif url_flag and first_word == "":
-                url_flag = False
-                yield next_token
-                next_token = ""
-                yield "**DONE**"
-            if first_word == "meta":
-                yield fields[2].strip()
-        except StopIteration:
-            complete = True
-
-
-def cluster_users(instream):
+    url_builder = ""
+    for token in tokens:
+        if BasicToken.is_instance(token):
+            if url_builder == "" and not token.value.startswith("http"):
+                yield token
+            elif token.value.startswith("http"):                
+                url_builder = token.value
+            else:
+                url_builder += token.value
+        else:
+            if url_builder != "":
+                yield URL(url_builder)
+                url_builder = ""
+            yield token
+    if url_builder != "":
+        yield URL(url_builder) 
+    
+def cluster_usernames(tokens):
     """ 
-    Generator for piecing together Username streams.
+    Generator for piecing together Twitter usernames in token streams.
 
     Reads from an instream, and if the instream has broken username pieces
-    (identified by an '@' symbol) in conll format, the generator yields a complete URL.
+    (identified by an '@' symbol) in conll format, the generator 
+    yields a complete username.
 
     """
-    complete = False
-    next_token = ""
-    user_flag = False
-    is_next_score = True
-    while not complete:
-        try:
-            line = next(instream)
-            fields = line.split('\t')
-            first_word = fields[0].strip()
-            if not user_flag and first_word != "@" and first_word != "_":
-                next_token += first_word
-                yield next_token 
-                next_token = ""
-            elif first_word == "@" or first_word == "_":
-                next_token += first_word
-                user_flag = True
-                is_next_score = True
-            elif user_flag and first_word != "@" and first_word != "_":
-                if is_next_score:
-                    next_token += first_word
-                    is_next_score = False
+    builder = ""
+    for token in tokens:
+        if BasicToken.is_instance(token) and builder == "":
+            if token.value == "@":
+                builder = token.value
+            else:
+                yield token
+        elif BasicToken.is_instance(token):            
+            if builder == "@" or builder[-1] == "_":
+                builder += token.value
+            elif token.value == "_":
+                builder += token.value
+            else:
+                yield Username(builder)
+                builder = ""
+                if token.value == "@":
+                    builder = token.value
                 else:
-                    user_flag = False
-                    yield next_token
-                    next_token = ""
-                    next_token += first_word
-                    yield next_token
-                    next_token = ""
-            if first_word == "meta":
-                yield fields[2].strip()
-        except StopIteration:
-            complete = True
+                    yield token
+        else:
+            if builder != "":
+                yield Username(builder)
+                builder = ""
+            yield token
+    if builder != "":
+        yield Username(builder) 
 
-def process(): 
-    """ 
-    Process that writes two new txt files: clean_train and final_train
 
-    clean_train.txt is the file written with complete URLs but incomplete usernames.
-    (It is used to create final_train.txt)
-
-    final_train.txt is the file written with complete URLs and complete usernames.
-    (It is the data to be used) 
-
-    """
-    with open('data/train_conll.txt','r') as data:
-        with open('data/clean_train.txt','w') as clean_data:
-            url_flag = 0
-            url_items = []
-            for line in data:
-                if url_flag == 0 and "https" not in line:
-                    clean_data.write(line)
-                if "https" in line:
-                    url_flag = 1
-                if url_flag == 1 and line != "\n":
-                    url_items.append(line)
-                if line == "\n" and url_flag == 1:
-                    url = [x.replace('\t','').replace('\n','') for x in url_items]
-                    for i in range(0,len(url)):
-                        if 'Eng' in url[i]:
-                            item = url[i].replace('Eng','')
-                            url[i] = item
-                        if 'Hin' in url[i]:
-                            item = url[i].replace('Hin','')
-                            url[i] = item
-                        if 'O' in url[i]:
-                            item = url[i].replace('O','')
-                            url[i] = item
-                    url_string = ''.join(url)
-                    clean_data.write(url_string + "\t" + "O")
-                    clean_data.write("\n")
-                    clean_data.write("\n")
-                    url_flag = 0
-                    url_items = []
-    with open('data/clean_train.txt','r') as url_clean_data:
-        with open('data/final_train.txt','w') as final_data:
-            user_flag = 0
-            user_items = []
-            for line in url_clean_data:
-                if "@" in line or "_" in line:
-                    user_items.append(line)
-                    user_flag = 1
-                if user_flag == 0:
-                    if len(user_items) > 0:
-                        user = [x.replace('\t','').replace('\n','') for x in user_items]
-                        for i in range(0,len(user)):
-                            if 'Eng' in user[i]:
-                                item = user[i].replace('Eng','')
-                                user[i] = item
-                            if 'Hin' in user[i]:
-                                item = user[i].replace('Hin','')
-                                user[i] = item
-                            if 'O' in user[i]:
-                                item = user[i].replace('O','')
-                                user[i] = item
-                        user_string = ''.join(user)
-                        final_data.write(user_string + "\t" + "O")
-                        final_data.write("\n")
-                        user_items = []
-                    if "@" not in line and "_" not in line:
-                        final_data.write(line)
-                    if user_flag == 1 and "@" not in line and "_" not in line:
-                        user_items.append(line)
-                        user_flag = 0
+def conll_to_json(conll_file, json_file):
+    result = []
+    with open(conll_file) as reader:
+        tokens = tokenize_conll([line for line in reader])
+        tokens = cluster_urls(tokens)
+        tokens = cluster_usernames(tokens)
+        next_segment = dict()
+        segment_tokens = []
+        for tok in tokens:
+            if Sentiment.is_instance(tok):
+                next_segment['sentiment'] = tok.sentiment
+            elif EndOfSegment.is_instance(tok):
+                next_segment['segment'] = ' '.join(segment_tokens)
+                result.append(next_segment)
+                next_segment = dict()
+                segment_tokens = []
+            elif BasicToken.is_instance(tok):
+                segment_tokens.append(tok.value)
+    if 'sentiment' in next_segment:
+        next_segment['segment'] = ' '.join(segment_tokens)
+        result.append(next_segment)
+    with open(json_file, 'w') as writer:
+        writer.write(json.dumps(result, indent=4))
+            
+            
+   
