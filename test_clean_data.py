@@ -1,58 +1,81 @@
 import unittest
-from clean_data import cluster_urls, cluster_users
+import json
+import os
+from clean_data import cluster_urls, tokenize_conll, conll_to_json
+from clean_data import cluster_usernames
+from clean_data import BasicToken, EndOfSegment, Sentiment, URL, Username
 
 class TestCleanData(unittest.TestCase):
 
+    def test_tokenize_conll(self):
+        text = ("the\tEng\n" + 
+                "…\tO\n" +
+                "\n" +
+                "meta\t48\tpositive")
+        instream = text.split('\n')
+        tokens = tokenize_conll((line for line in instream))
+        assert next(tokens) == BasicToken("the")
+        assert next(tokens) == BasicToken("…")
+        assert next(tokens) == EndOfSegment()
+        assert next(tokens) == Sentiment("positive")
+
     def test_cluster_urls(self):
-        text = """the\tEng\n…\tO\nhttps\tEng\n//\tO\nt\tEng\n.\tO\nco\tEng\n\nmeta\t48\tpositive"""
+        text = ("the\tEng\n" + 
+                "…\tO\n" +
+                "https\tEng\n" +
+                "//\tO\n" +
+                "t\tEng\n" +
+                ".\tO\n" +
+                "co\tEng\n" +
+                "\n" +
+                "meta\t48\tpositive")
         instream = text.split('\n')
-        tokens = cluster_urls((line for line in instream))
-        assert next(tokens) == "the"
-        assert next(tokens) == "…"
-        assert next(tokens) == "https//t.co"
-        assert next(tokens) == "**DONE**"
-        assert next(tokens) == "meta"
+        tokens = tokenize_conll((line for line in instream))
+        tokens = cluster_urls(tokens)
+        assert next(tokens) == BasicToken("the")
+        assert next(tokens) == BasicToken("…")
+        assert next(tokens) == URL("https//t.co")
+        assert next(tokens) == EndOfSegment()
+        assert next(tokens) == Sentiment("positive")
 
-    def test_cluster_users(self):
-        text = """meta\t48\tpositive\n@\tO\nAbhishar\tHin\n_\tO\nSharma\tHin\n@\tO\nRavishKumarBlog\tHin\nLokSabha\tEng\n\n"""
+    def test_cluster_usernames(self):
+        text = ("meta\t48\tpositive\n" + 
+                "@\tO\n" +
+                "Abhishar\tHin\n" +
+                "_\tO\n" +
+                "Sharma\tHin\n" +
+                "@\tO\n" +
+                "RavishKumarBlog\tHin\n" +
+                "LokSabha\tEng\n" +
+                "\n")
         instream = text.split('\n')
-        tokens = cluster_users((line for line in instream))        
-        assert next(tokens) == "meta"
-        assert next(tokens) == "positive"
-        assert next(tokens) == "@Abhishar_Sharma@RavishKumarBlog"
-        assert next(tokens) == "LokSabha"
+        tokens = tokenize_conll((line for line in instream))
+        tokens = cluster_usernames(tokens)        
+        assert next(tokens) == Sentiment("positive")
+        assert next(tokens) == Username("@Abhishar_Sharma")       
+        assert next(tokens) == Username("@RavishKumarBlog")
+        assert next(tokens) == BasicToken("LokSabha")
+        assert next(tokens) == EndOfSegment()
+        
+    def test_conll_to_json(self):
+        conll_to_json("test/example.txt", "temp.json")
+        try:
+            with open("temp.json") as reader:
+                data = json.load(reader)
+                assert len(data) == 2
+                assert data[0]["sentiment"] ==  "negative"
+                assert (data[0]["segment"] == "pakistan ka ghra tauq he " +
+                        "Pakistan Israel ko tasleem nahein kerta Isko " +
+                        "Palestine kehta he - OCCUPIED PALESTINE")                     
+                assert data[1]["sentiment"] == "negative"
+                assert (data[1]["segment"] == "Madarchod mulle ye mathura " +
+                        "me Nahi dikha tha jab mullo ne Hindu ko iss liye " +
+                        "mara ki vo lasse ki paise mag liye the \u2026")                        
+        except Exception:
+            print("Unit test failure!")
+            os.remove("temp.json")
 
-        text = """meta\t48\tpositive\n@\tO\nAbhisharSharma\tHin\n@\tO\nRavishKumarBlog\tHin\nLokSabha\tEng\n\n"""
-        instream = text.split('\n')
-        tokens = cluster_users((line for line in instream))        
-        assert next(tokens) == "meta"
-        assert next(tokens) == "positive"
-        assert next(tokens) == "@AbhisharSharma@RavishKumarBlog"
-        assert next(tokens) == "LokSabha"
-
-        text = """meta\t48\tpositive\n@\tO\nAbhishar\tHin\n_\tO\nSharma\tHin\nLokSabha\tEng\nme\tHin\njanta\tHin\nsirf\tHin\n\n"""
-        instream = text.split('\n')
-        tokens = cluster_users((line for line in instream))        
-        assert next(tokens) == "meta"
-        assert next(tokens) == "positive"
-        assert next(tokens) == "@Abhishar_Sharma"
-        assert next(tokens) == "LokSabha"
-        assert next(tokens) == "me"
-        assert next(tokens) == "janta"
-        assert next(tokens) == "sirf"
-
-        text = """meta\t3\tnegative\n@\tO\nAdilNisarButt\tHin\npakistan\tHin\nka\tHin\nghra\tHin\ntauq\tHin\nhe\tHin\npakistan\tEng\n\n"""
-        instream = text.split('\n')
-        tokens = cluster_users((line for line in instream))        
-        assert next(tokens) == "meta"
-        assert next(tokens) == "negative"
-        assert next(tokens) == "@AdilNisarButt"
-        assert next(tokens) == "pakistan"
-        assert next(tokens) == "ka"
-        assert next(tokens) == "ghra"
-        assert next(tokens) == "tauq"
-        assert next(tokens) == "he"
-        assert next(tokens) == "pakistan"
+        
 
 
         
