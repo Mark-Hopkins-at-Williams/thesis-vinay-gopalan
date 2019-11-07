@@ -1,10 +1,12 @@
 
 
-#### DATA LINKS
+# Sentiment Analysis on Code-Mixed Tweets
 
-The clean training data can be found at:
 
-https://drive.google.com/open?id=1HEv4T1ler395YVoJi6_CMk1_9gg5Ua2Z
+### Getting the data and seeting it up
+
+Download `final_train.txt` from Google Drive at https://drive.google.com/open?id=1HEv4T1ler395YVoJi6_CMk1_9gg5Ua2Z/ and extract it to the directory `data`.
+
 
 #### TWITTER CORPORA
 
