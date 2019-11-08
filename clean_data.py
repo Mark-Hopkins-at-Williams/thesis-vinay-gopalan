@@ -167,5 +167,35 @@ def conll_to_json(conll_file, json_file):
     with open(json_file, 'w') as writer:
         writer.write(json.dumps(result, indent=4))
             
+
+def conll_to_tsv(conll_file, tsv_file):
+    with open(conll_file) as reader:
+        with open(tsv_file, 'w') as writer:
+            tokens = tokenize_conll([line for line in reader])
+            tokens = cluster_urls(tokens)
+            tokens = cluster_usernames(tokens)
+            
+            
+            segment_tokens = []
+            sentiment = -1
+            for tok in tokens:
+                if Sentiment.is_instance(tok):
+                    if tok.sentiment == "positive":
+                        sentiment = 1
+                    elif tok.sentiment == "negative":
+                        sentiment = 0
+                elif EndOfSegment.is_instance(tok):                    
+                    next_segment = ' '.join(segment_tokens)
+                    next_segment += '\t' + str(sentiment)
+                    if sentiment >= 0:
+                        writer.write(next_segment + '\n')
+                    sentiment = -1
+                    segment_tokens = []
+                elif BasicToken.is_instance(tok):
+                    segment_tokens.append(tok.value)
+            if sentiment >= 0:
+                next_segment = ' '.join(segment_tokens)
+                next_segment += '\t' + str(sentiment)
+                writer.write(next_segment + '\n')
             
    

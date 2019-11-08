@@ -20,7 +20,7 @@ he	Hin
 OCCUPIED	Hin
 PALESTINE	Hin
 
-meta	41	negative
+meta	41	positive
 Madarchod	Hin
 mulle	Hin
 ye	Hin

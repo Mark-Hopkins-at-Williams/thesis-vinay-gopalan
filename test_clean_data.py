@@ -67,13 +67,13 @@ class TestCleanData(unittest.TestCase):
                 assert (data[0]["segment"] == "pakistan ka ghra tauq he " +
                         "Pakistan Israel ko tasleem nahein kerta Isko " +
                         "Palestine kehta he - OCCUPIED PALESTINE")                     
-                assert data[1]["sentiment"] == "negative"
+                assert data[1]["sentiment"] == "positive"
                 assert (data[1]["segment"] == "Madarchod mulle ye mathura " +
                         "me Nahi dikha tha jab mullo ne Hindu ko iss liye " +
                         "mara ki vo lasse ki paise mag liye the \u2026")                        
         except Exception:
-            print("Unit test failure!")
             os.remove("temp.json")
+            raise Exception("Unit test failure!")
 
         
 
