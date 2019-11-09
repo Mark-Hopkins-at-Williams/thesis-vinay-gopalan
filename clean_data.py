@@ -1,9 +1,11 @@
 import json
+import random
 
 class ConllToken:
     def __init__(self, token_type):
         self.token_type = token_type
- 
+
+
 class EndOfSegment(ConllToken):
     def __init__(self):
         super().__init__("end")
@@ -14,7 +16,7 @@ class EndOfSegment(ConllToken):
         
     def __eq__(self, other):
         return EndOfSegment.is_instance(other)
-    
+
 
 class Sentiment(ConllToken):
     def __init__(self, sentiment):
@@ -29,7 +31,7 @@ class Sentiment(ConllToken):
         return (Sentiment.is_instance(other) and 
                 other.sentiment == self.sentiment)
 
-        
+
 class BasicToken(ConllToken):
     def __init__(self, value):
         super().__init__("basic")
@@ -42,7 +44,8 @@ class BasicToken(ConllToken):
     def __eq__(self, other):
         return (BasicToken.is_instance(other) and 
                 other.value == self.value)
-    
+
+
 class URL(ConllToken):
     def __init__(self, value):
         super().__init__("url")
@@ -54,7 +57,8 @@ class URL(ConllToken):
     
     def __eq__(self, other):
         return URL.is_instance(other) and other.value == self.value
-  
+
+
 class Username(ConllToken):
     def __init__(self, value):
         super().__init__("username")
@@ -67,8 +71,7 @@ class Username(ConllToken):
     def __eq__(self, other):
         return Username.is_instance(other) and other.value == self.value
 
-     
-    
+
 def tokenize_conll(lines):
     for line in lines:
         if line.strip() == "":
@@ -79,6 +82,7 @@ def tokenize_conll(lines):
                 yield Sentiment(fields[2].strip())
             else:
                 yield BasicToken(fields[0].strip())
+
 
 def cluster_urls(tokens):
     """ 
@@ -105,7 +109,8 @@ def cluster_urls(tokens):
             yield token
     if url_builder != "":
         yield URL(url_builder) 
-    
+
+
 def cluster_usernames(tokens):
     """ 
     Generator for piecing together Twitter usernames in token streams.
@@ -166,7 +171,7 @@ def conll_to_json(conll_file, json_file):
         result.append(next_segment)
     with open(json_file, 'w') as writer:
         writer.write(json.dumps(result, indent=4))
-            
+
 
 def conll_to_tsv(conll_file, tsv_file):
     with open(conll_file) as reader:
@@ -197,3 +202,16 @@ def conll_to_tsv(conll_file, tsv_file):
                 next_segment = ' '.join(segment_tokens)
                 next_segment += '\t' + str(sentiment)
                 writer.write(next_segment + '\n')
+
+
+def split_file(input_file, out1, out2):
+    with open(input_file, 'r') as reader:
+        with open(out1, 'w') as writer75:
+            with open(out2, 'w') as writer25:
+                for line in reader:
+                    r = random.random()
+                    if r < 0.75:
+                        writer75.write(line)
+                    else:
+                        line = line.split("\t")[0]
+                        writer25.write(line + "\n")
