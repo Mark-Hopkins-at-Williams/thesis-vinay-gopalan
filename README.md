@@ -5,7 +5,7 @@
 
 ### Getting the data and setting it up
 
-Download `final_train.txt` from Google Drive at https://drive.google.com/open?id=1HEv4T1ler395YVoJi6_CMk1_9gg5Ua2Z/ and extract it to the directory `data`.
+Download `train_conll.txt` from Google Drive at https://drive.google.com/file/d/1fzhNn_baYWE6Ltxf1VKlkYzCUwUlHVXx/view?usp=sharing/ and extract it to the directory `data`.
 
 
 #### TWITTER CORPORA

@@ -179,8 +179,7 @@ def conll_to_tsv(conll_file, tsv_file):
             tokens = tokenize_conll([line for line in reader])
             tokens = cluster_urls(tokens)
             tokens = cluster_usernames(tokens)
-            
-            
+            writer.write("sentence\tlabel\n")
             segment_tokens = []
             sentiment = -1
             for tok in tokens:
@@ -204,14 +203,24 @@ def conll_to_tsv(conll_file, tsv_file):
                 writer.write(next_segment + '\n')
 
 
-def split_file(input_file, out1, out2):
+def split_file(input_file, out1, out2, percentage, dev_split=False):
     with open(input_file, 'r') as reader:
         with open(out1, 'w') as writer75:
             with open(out2, 'w') as writer25:
+                if not dev_split:
+                    writer25.write("index\tsentence\n")
+                else:
+                    writer25.write("sentence\tlabel\n")
+                lines_in_smaller = 0
                 for line in reader:
                     r = random.random()
-                    if r < 0.75:
+                    if r < percentage:
                         writer75.write(line)
                     else:
-                        line = line.split("\t")[0]
-                        writer25.write(line + "\n")
+                        if not dev_split:
+                            line = line.split("\t")[0]
+                            writer25.write(str(lines_in_smaller) + "\t" + line + "\n")
+                            lines_in_smaller += 1
+                        else:
+                            line = line.split("\t")[0]
+                            writer25.write(line + "\n")
