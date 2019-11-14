@@ -222,5 +222,9 @@ def split_file(input_file, out1, out2, percentage, dev_split=False):
                             writer25.write(str(lines_in_smaller) + "\t" + line + "\n")
                             lines_in_smaller += 1
                         else:
-                            line = line.split("\t")[0]
-                            writer25.write(line + "\n")
+                            writer25.write(line)
+
+if __name__ == "__main__":
+    conll_to_tsv('data/train_conll.txt', 'data/SST-2/full_train.tsv')
+    split_file('data/SST-2/full_train.tsv','data/SST-2/train.tsv','data/SST-2/test.tsv',0.9)
+    split_file('data/SST-2/train.tsv','data/SST-2/train1.tsv','data/SST-2/dev.tsv',0.9, dev_split=True)
