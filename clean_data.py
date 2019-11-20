@@ -224,7 +224,20 @@ def split_file(input_file, out1, out2, percentage, dev_split=False):
                         else:
                             writer25.write(line)
 
+def testify(input_file, output_file):
+    with open(input_file, 'r') as reader:
+        with open(output_file, 'w') as writer:
+            writer.write("index\tsentence\n")
+            index = 0
+            for line in reader:
+                line = line.split("\t")[0]
+                if line != "sentence":
+                    writer.write(f"{index}\t{line}\n")
+                    index += 1
+            
+
 if __name__ == "__main__":
-    conll_to_tsv('data/train_conll.txt', 'data/SST-2/full_train.tsv')
-    split_file('data/SST-2/full_train.tsv','data/SST-2/train.tsv','data/SST-2/test.tsv',0.9)
-    split_file('data/SST-2/train.tsv','data/SST-2/train1.tsv','data/SST-2/dev.tsv',0.9, dev_split=True)
+    conll_to_tsv('data/train_conll.txt', 'data/full_train.tsv')
+    split_file('data/full_train.tsv','data/SST-2/train.tsv','data/SST-2/dev.tsv',0.9,dev_split=True)
+    conll_to_tsv('data/trial_conll.txt', 'data/full_test.tsv')
+    testify('data/full_test.tsv', 'data/SST-2/test.tsv')
