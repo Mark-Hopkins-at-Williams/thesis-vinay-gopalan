@@ -53,6 +53,7 @@ from transformers import glue_convert_examples_to_features as convert_examples_t
 from Sst3Processor import Sst3Processor
 
 processors["sst-3"] = Sst3Processor
+output_modes["sst-3"] = "classification"
 logger = logging.getLogger(__name__)
 
 ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig, XLNetConfig, XLMConfig, RobertaConfig)), ())
