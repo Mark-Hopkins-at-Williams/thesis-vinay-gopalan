@@ -1,5 +1,8 @@
 export GLUE_DIR=data
-export TASK_NAME=SST-2
+export TASK_NAME=SST-3
+
+rm -rf data/SST-3/cached_train_bert-base-multilingual-cased_128_sst-3
+rm -rf data/SST-3/cached_dev_bert-base-multilingual-cased_128_sst-3
 
 python3 run_glue.py \
     --model_type bert \

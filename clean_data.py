@@ -184,10 +184,12 @@ def conll_to_tsv(conll_file, tsv_file):
             sentiment = -1
             for tok in tokens:
                 if Sentiment.is_instance(tok):
-                    if tok.sentiment == "positive":
-                        sentiment = 1
-                    elif tok.sentiment == "negative":
+                    if tok.sentiment == "negative":
                         sentiment = 0
+                    elif tok.sentiment == "neutral":
+                        sentiment = 1
+                    elif tok.sentiment == "positive":
+                        sentiment = 2
                 elif EndOfSegment.is_instance(tok):                    
                     next_segment = ' '.join(segment_tokens)
                     next_segment += '\t' + str(sentiment)
@@ -234,10 +236,10 @@ def testify(input_file, output_file):
                 if line != "sentence":
                     writer.write(f"{index}\t{line}\n")
                     index += 1
-            
+
 
 if __name__ == "__main__":
     conll_to_tsv('data/train_conll.txt', 'data/full_train.tsv')
-    split_file('data/full_train.tsv','data/SST-2/train.tsv','data/SST-2/dev.tsv',0.9,dev_split=True)
+    split_file('data/full_train.tsv','data/SST-3/train.tsv','data/SST-3/dev.tsv',0.9,dev_split=True)
     conll_to_tsv('data/trial_conll.txt', 'data/full_test.tsv')
-    testify('data/full_test.tsv', 'data/SST-2/test.tsv')
+    testify('data/full_test.tsv', 'data/SST-3/test.tsv')
