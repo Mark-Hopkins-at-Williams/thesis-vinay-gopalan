@@ -5,8 +5,19 @@
 
 ### Getting the data and setting it up
 
-Download `train_conll.txt` from Google Drive at https://drive.google.com/file/d/1fzhNn_baYWE6Ltxf1VKlkYzCUwUlHVXx/view?usp=sharing/ and extract it to the directory `data`.
+1. In the repository root, create a directory `data`.
 
+2. Download `train_conll.txt` from Google Drive at https://drive.google.com/file/d/1fzhNn_baYWE6Ltxf1VKlkYzCUwUlHVXx/view?usp=sharing/ and extract it to `data`.
+
+3. Downlaod `trial_conll.txt` from Google Drive at https://drive.google.com/file/d/1T_AvUYwc8Fld_8VoUj9s9S1ZbmpkAsVI/view?usp=sharing/ and extract it to `data`.
+
+4. Inside `data`, create a directory `SST-3`.
+
+5. From root, run `python3 clean_data.py`.
+
+### Run GLUE experiments
+
+From root, run `sh glue.sh`.
 
 #### TWITTER CORPORA
 
