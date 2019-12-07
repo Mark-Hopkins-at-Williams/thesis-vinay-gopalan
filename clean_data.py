@@ -2,11 +2,13 @@ import json
 import random
 
 class ConllToken:
+    """ Parent token class. """
     def __init__(self, token_type):
         self.token_type = token_type
 
 
 class EndOfSegment(ConllToken):
+    """ End of Segment token class. """
     def __init__(self):
         super().__init__("end")
         
@@ -19,6 +21,7 @@ class EndOfSegment(ConllToken):
 
 
 class Sentiment(ConllToken):
+    """ Sentiment token class. """
     def __init__(self, sentiment):
         super().__init__("sentiment")
         self.sentiment = sentiment
@@ -33,6 +36,7 @@ class Sentiment(ConllToken):
 
 
 class BasicToken(ConllToken):
+    """ Basic token class. """
     def __init__(self, value):
         super().__init__("basic")
         self.value = value
@@ -47,6 +51,7 @@ class BasicToken(ConllToken):
 
 
 class URL(ConllToken):
+    """ URL token class. """
     def __init__(self, value):
         super().__init__("url")
         self.value = value
@@ -60,6 +65,7 @@ class URL(ConllToken):
 
 
 class Username(ConllToken):
+    """ Username token class. """
     def __init__(self, value):
         super().__init__("username")
         self.value = value
@@ -73,6 +79,7 @@ class Username(ConllToken):
 
 
 def tokenize_conll(lines):
+    """ Tokenize lines in a file. """
     for line in lines:
         if line.strip() == "":
             yield EndOfSegment()
@@ -149,6 +156,7 @@ def cluster_usernames(tokens):
 
 
 def conll_to_json(conll_file, json_file):
+    """ Convert conll format to JSON. """
     result = []
     with open(conll_file) as reader:
         tokens = tokenize_conll([line for line in reader])
@@ -174,6 +182,7 @@ def conll_to_json(conll_file, json_file):
 
 
 def conll_to_tsv(conll_file, tsv_file):
+    """ Convert conll format to TSV. """
     with open(conll_file) as reader:
         with open(tsv_file, 'w') as writer:
             tokens = tokenize_conll([line for line in reader])
@@ -206,6 +215,10 @@ def conll_to_tsv(conll_file, tsv_file):
 
 
 def split_file(input_file, out1, out2, percentage, dev_split=False):
+    """ 
+    Splits an input file into two output files based on the percentage.
+    May be used to generate both test and dev files.
+    """
     with open(input_file, 'r') as reader:
         with open(out1, 'w') as writer75:
             with open(out2, 'w') as writer25:
@@ -227,6 +240,7 @@ def split_file(input_file, out1, out2, percentage, dev_split=False):
                             writer25.write(line)
 
 def testify(input_file, output_file):
+    """ Formats given trial data into test data. """
     with open(input_file, 'r') as reader:
         with open(output_file, 'w') as writer:
             writer.write("index\tsentence\n")

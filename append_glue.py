@@ -1,3 +1,4 @@
+""" Script to append glue training data to SST-3 training data. """
 
 def append_glue_data(data_file, glue_file):
     with open(data_file,'a') as writer:
