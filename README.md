@@ -15,6 +15,8 @@
 
 5. From root, run `python3 clean_data.py`.
 
+6. (If you wish to append SST-2 data) From root, run `python3 append_glue.py`.
+
 ### Run GLUE experiments
 
 From root, run `sh glue.sh`.
