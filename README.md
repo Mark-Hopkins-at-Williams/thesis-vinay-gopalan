@@ -13,13 +13,19 @@
 
 4. Inside `data`, create a directory `SST-3`.
 
-5. From root, run `python3 clean_data.py`.
+5. Inside `SST-3`, create a directory `checks`.
 
-6. (If you wish to append SST-2 data) From root, run `python3 append_glue.py`.
+6. From root, run `python3 clean_data.py`.
+
+7. (If you wish to append SST-2 data) From root, run `python3 append_glue.py`.
 
 ### Run GLUE experiments
 
 From root, run `sh glue.sh`.
+
+### Results
+
+The dev set results will be present within the text file 'eval_results.txt' in the specified output_dir `data/SST-3/checks/`
 
 #### TWITTER CORPORA
 
