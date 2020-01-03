@@ -6,6 +6,14 @@ class ConllToken:
     def __init__(self, token_type):
         self.token_type = token_type
 
+class Sentiment(ConllToken):
+    def __init__(self, sentiment):
+        super().__init__("sentiment")
+        self.sentiment = sentiment
+    
+    @staticmethod
+    def is_instance(token):
+        return token.token_type == "sentiment"
 
 class EndOfSegment(ConllToken):
     """ End of Segment token class. """
@@ -257,3 +265,4 @@ if __name__ == "__main__":
     split_file('data/full_train.tsv','data/SST-3/train.tsv','data/SST-3/dev.tsv',0.9,dev_split=True)
     conll_to_tsv('data/trial_conll.txt', 'data/full_test.tsv')
     testify('data/full_test.tsv', 'data/SST-3/test.tsv')
+
