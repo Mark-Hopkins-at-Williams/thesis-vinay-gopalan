@@ -254,9 +254,9 @@ def evaluate(args, model, tokenizer, prefix=""):
         output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
         with open(output_eval_file, "w") as writer:
             logger.info("***** Eval results {} *****".format(prefix))
-            for x in range(0,len(result)):
-                logger.info(str(result[x])+"\n")
-                writer.write(str(result[x])+"\n")
+            for x in range(0,len(result['acc'])):
+                logger.info(str(result['acc'][x])+"\n")
+                writer.write(str(result['acc'][x])+"\n")
 
     return results
 
