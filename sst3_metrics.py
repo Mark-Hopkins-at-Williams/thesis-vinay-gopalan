@@ -1,10 +1,11 @@
 from transformers.data.metrics import simple_accuracy
 
-def sst3_compute_metrics(task_name, preds, labels):
+def sst3_compute_metrics(task_name, inputs, preds, labels):
     """Metrics for computing SST-3 task."""
     assert len(preds) == len(labels)
     if task_name == "sst-3":
         return {
+                "inputs": inputs,
                 "pred": preds,
                 "actual": labels
                 }

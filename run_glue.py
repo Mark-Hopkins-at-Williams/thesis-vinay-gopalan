@@ -248,14 +248,14 @@ def evaluate(args, model, tokenizer, prefix=""):
             preds = np.argmax(preds, axis=1)
         elif args.output_mode == "regression":
             preds = np.squeeze(preds)
-        result = compute_metrics(eval_task, preds, out_label_ids)
+        result = compute_metrics(eval_task, inputs, preds, out_label_ids)
         results.update(result)
 
         output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
         with open(output_eval_file, "w") as writer:
             logger.info("***** Eval results {} *****".format(prefix))
             for x in range(0,len(result['pred'])):
-                writer.write("predicted: "+str(result['pred'][x])+"\tactual: "+str(result['actual'][x])+"\n")
+                writer.write("input: "+str(result['inputs'][x])+"\tpredicted: "+str(result['pred'][x])+"\tactual: "+str(result['actual'][x])+"\n")
             logger.info("results added to eval_results.txt\n")
 
     return results
