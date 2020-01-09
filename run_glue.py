@@ -254,7 +254,6 @@ def evaluate(args, model, tokenizer, prefix=""):
         output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
         with open(output_eval_file, "w") as writer:
             logger.info("***** Eval results {} *****".format(prefix))
-            writer.write("input: "+str(result['inputs']['input_ids'][0])+"\n")
             for x in range(0,len(result['pred'])):
                 writer.write("predicted: "+str(result['pred'][x])+"\tactual: "+str(result['actual'][x])+"\n")
             logger.info("results added to eval_results.txt\n")
