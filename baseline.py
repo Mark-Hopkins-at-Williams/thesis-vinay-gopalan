@@ -56,9 +56,10 @@ def two_layer_feedforward(input_size, H):
 def eval_results(filename):
     with open(filename,'w') as writer:
         frequencies = get_frequencies("data/SST-3/dev.tsv")
-        vocabulary = create_vocab(frequencies, 10)
+        vocabulary = create_vocab(frequencies, 15)
         inputs = create_vectors("data/SST-3/dev.tsv", vocabulary)
         input_size = len(inputs[0])
+        print(input_size)
         net = two_layer_feedforward(input_size, 784)
         outs = [net(x) for x in inputs]
         for x in range(len(outs)):
