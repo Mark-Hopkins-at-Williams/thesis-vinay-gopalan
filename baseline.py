@@ -40,7 +40,7 @@ def create_vectors(filename, vocab):
 def two_layer_feedforward(input_size, H):
     """
     A two-layer feedforward neural network with 'input_size' input features, H hidden
-    features, and one response value.
+    features, and one softmax response value.
     
     """
     net = torch.nn.Sequential()
@@ -48,7 +48,7 @@ def two_layer_feedforward(input_size, H):
                                    out_features = H))
     net.add_module("relu1", torch.nn.ReLU())
     net.add_module("dense2", torch.nn.Linear(in_features = H, 
-                                   out_features = 1))
+                                   out_features = 2))
     net.add_module("softmax", torch.nn.Softmax(dim=0))
 
     return net

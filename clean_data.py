@@ -261,8 +261,6 @@ def testify(input_file, output_file):
 
 
 if __name__ == "__main__":
-    conll_to_tsv('data/train_conll.txt', 'data/full_train.tsv')
-    split_file('data/full_train.tsv','data/SST-3/train.tsv','data/SST-3/dev.tsv',0.9,dev_split=True)
-    conll_to_tsv('data/trial_conll.txt', 'data/full_test.tsv')
-    testify('data/full_test.tsv', 'data/SST-3/test.tsv')
+    conll_to_tsv('data/train_14k_split_conll.txt','data/SST-3/train.tsv')
+    conll_to_tsv('data/dev_3k_split_conll.txt','data/SST-3/dev.tsv')
 
