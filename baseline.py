@@ -53,15 +53,16 @@ def two_layer_feedforward(input_size, H):
 
     return net
 
+def eval_results(filename):
+    with open(filename,'w') as writer:
+        frequencies = get_frequencies("data/SST-3/train.tsv")
+        vocabulary = create_vocab(frequencies, 10)
+        inputs = create_vectors("data/SST-3/train.tsv", vocabulary)
+        input_size = len(inputs[0])
+        net = two_layer_feedforward(input_size, 784)
+        outs = [net(x) for x in inputs]
+        for x in range(len(outs)):
+            writer.write("%s %s\n"%(str(x),str(outs[x])))
 
 if __name__ == "__main__":
-    frequencies = get_frequencies("data/SST-3/train.tsv")
-    vocabulary = create_vocab(frequencies, 10)
-    inputs = create_vectors("data/SST-3/train.tsv", vocabulary)
-    
-    input_size = len(inputs[0])
-    print(input_size)
-
-    net = two_layer_feedforward(input_size, 784)
-    outs = [net(x) for x in inputs]
-    print(outs)
+   eval_results('base.txt')
