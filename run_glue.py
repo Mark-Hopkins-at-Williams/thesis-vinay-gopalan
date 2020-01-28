@@ -259,7 +259,7 @@ def evaluate(args, model, tokenizer, prefix=""):
             logger.info("  %s = %s", 'acc', str(result['acc']))
             writer.write("%s = %s\n" % ('acc', str(result['acc'])))
             for x in range(0,len(result['pred'])):
-                writer.write("predicted: "+str(result['pred'][x])+"\tactual: "+str(result['actual'][x])+"\n")
+                writer.write(str(x+1)+ " predicted: "+str(result['pred'][x])+"\tactual: "+str(result['actual'][x])+"\n")
             logger.info("results added to eval_results.txt\n")
 
     return results
