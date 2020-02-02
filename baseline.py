@@ -63,7 +63,11 @@ def eval_results(filename):
         net = two_layer_feedforward(input_size, 784)
         outs = [net(x) for x in inputs]
         for x in range(len(outs)):
-            writer.write("%s %s\n"%(str(x),str(outs[x])))
+            if outs[x][0] < outs[x][1]:
+                writer.write("%s\t%s\t1\n"%(str(x),str(outs[x])))
+            else:
+                writer.write("%s\t%s\t0\n"%(str(x),str(outs[x])))
+
 
 if __name__ == "__main__":
    eval_results('base.txt')
