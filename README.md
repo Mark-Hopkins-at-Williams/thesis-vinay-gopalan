@@ -3,7 +3,7 @@
 # Sentiment Analysis on Code-Mixed Tweets
 
 
-### Collated Data
+### Collated Results
 The evaluation results of all experiments can be found at https://docs.google.com/spreadsheets/d/1uTEbuPMO01eKuVeVVugxpmxJLWidkFj3TWun7URgqQs/edit?usp=sharing
 
 ### Getting the data and setting it up
