@@ -6,17 +6,18 @@ import torch.optim as optim
 from baseline import get_frequencies, create_vocab, create_vectors, get_labels, two_layer_feedforward
 
 FREQ_THRESHOLD = 15
-INPUT_SIZE = 0
 BATCH_SIZE = 4
+VOCAB = {}
+INPUT_SIZE = 0
 
-def make_train_vectors(input_filename, output_filename=None):
+def make_train_vectors(input_filename):
     # Create vectors
     frequencies = get_frequencies(input_filename)
-    vocabulary = create_vocab(frequencies, FREQ_THRESHOLD)
-    vecs = create_vectors(input_filename, vocabulary)
+    global VOCAB, INPUT_SIZE
+    VOCAB = create_vocab(frequencies, FREQ_THRESHOLD)
+    vecs = create_vectors(input_filename, VOCAB)
 
     # Set value for input size
-    global INPUT_SIZE
     INPUT_SIZE = len(vecs[0])
 
     # Get labels from file
@@ -26,9 +27,19 @@ def make_train_vectors(input_filename, output_filename=None):
 
     return vecs, labels
 
+def make_test_vectors(input_filename):
+    # Create vectors
+    vecs = create_vectors(input_filename, VOCAB)
 
-class BagOfWordsDataSet(Dataset):
-    
+    # Get labels from file
+    labels = get_labels(input_filename)
+
+    assert(len(labels)==len(vecs))
+
+    return vecs, labels
+
+
+class BagOfWordsTrainDataSet(Dataset):
     def __init__(self, datafile):
         self.vecs, self.labels = make_train_vectors(datafile)
     
@@ -39,8 +50,18 @@ class BagOfWordsDataSet(Dataset):
         return [self.vecs[idx],self.labels[idx]]
 
 
-def train(trainloader, model, criterion, optimizer):
+class BagOfWordsTestDataSet(Dataset):
+    def __init__(self, datafile):
+        self.vecs, self.labels = make_test_vectors(datafile)
+    
+    def __len__(self):
+        return len(self.vecs)
 
+    def __getitem__(self, idx):
+        return [self.vecs[idx]]
+
+
+def train(trainloader, model, criterion, optimizer):
     for epoch in range(2):  # loop over the dataset multiple times
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
@@ -66,9 +87,23 @@ def train(trainloader, model, criterion, optimizer):
     print('Finished Training')
 
 
+def eval(testloader,net,labels):
+    with torch.no_grad():
+        outs = []
+        for data in testloader:
+            vectors, labels = data
+            outputs = net(vectors)
+            _, predicted = torch.max(outputs.data, 1)
+            outs.append(outputs)
+            
+        with open('base.txt',w) as writer:
+            for i in range(len(outs)):
+                writer.write("%s, %s\n" % (i,outs[i]))
+
+
 if __name__ == "__main__":
     # Set up training
-    trainset = BagOfWordsDataSet('data/SST-3/train.tsv')
+    trainset = BagOfWordsTrainDataSet('data/SST-3/train.tsv')
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
@@ -79,3 +114,13 @@ if __name__ == "__main__":
     print("Starting Training\n")
     # Train
     train(trainloader, net, criterion, optimizer)
+
+    # Set up testing
+    testset = BagOfWordsTestDataSet('data/SST-3/dev.tsv')
+    testloader = DataLoader(trainset, batch_size=BATCH_SIZE,
+                                          shuffle=True, num_workers=2)
+
+    print("Starting Testing\n")
+
+    # Test
+    eval(testloader,net, testset.labels)
