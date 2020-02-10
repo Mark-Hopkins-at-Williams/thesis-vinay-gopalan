@@ -222,37 +222,6 @@ def conll_to_tsv(conll_file, tsv_file):
                 writer.write(next_segment + '\n')
 
 
-def binary_class_conll_to_tsv(conll_file, tsv_file):
-    """ Convert conll format to TSV. """
-    with open(conll_file) as reader:
-        with open(tsv_file, 'w') as writer:
-            tokens = tokenize_conll([line for line in reader])
-            tokens = cluster_urls(tokens)
-            tokens = cluster_usernames(tokens)
-            writer.write("sentence\tlabel\n")
-            segment_tokens = []
-            sentiment = -1
-            for tok in tokens:
-                if Sentiment.is_instance(tok):
-                    if tok.sentiment == "negative":
-                        sentiment = 0
-                    elif tok.sentiment == "neutral" or "positive":
-                        sentiment = 1
-                elif EndOfSegment.is_instance(tok):                    
-                    next_segment = ' '.join(segment_tokens)
-                    next_segment += '\t' + str(sentiment)
-                    if sentiment >= 0:
-                        writer.write(next_segment + '\n')
-                    sentiment = -1
-                    segment_tokens = []
-                elif BasicToken.is_instance(tok):
-                    segment_tokens.append(tok.value)
-            if sentiment >= 0:
-                next_segment = ' '.join(segment_tokens)
-                next_segment += '\t' + str(sentiment)
-                writer.write(next_segment + '\n')
-
-
 def split_file(input_file, out1, out2, percentage, dev_split=False):
     """ 
     Splits an input file into two output files based on the percentage.
@@ -294,5 +263,4 @@ def testify(input_file, output_file):
 if __name__ == "__main__":
     conll_to_tsv('data/train_14k_split_conll.txt','data/SST-3/train.tsv')
     conll_to_tsv('data/dev_3k_split_conll.txt','data/SST-3/dev.tsv')
-    binary_class_conll_to_tsv('data/dev_3k_split_conll.txt', 'data/SST-3/binary_dev.tsv')
 

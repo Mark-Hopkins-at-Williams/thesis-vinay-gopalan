@@ -9,6 +9,7 @@ FREQ_THRESHOLD = 15
 BATCH_SIZE = 4
 VOCAB = {}
 INPUT_SIZE = 0
+HIDDEN_LAYER = 784
 
 def make_train_vectors(input_filename):
     # Create vectors
@@ -100,6 +101,8 @@ def eval(testloader,net,labels):
             for i in range(len(outs)):
                 writer.write("%s, %s\n" % (i,outs[i]))
 
+    print("Finished Testing")
+
 
 if __name__ == "__main__":
     # Set up training
@@ -107,7 +110,7 @@ if __name__ == "__main__":
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
-    net = two_layer_feedforward(INPUT_SIZE, 784)
+    net = two_layer_feedforward(INPUT_SIZE, HIDDEN_LAYER)
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
@@ -118,7 +121,7 @@ if __name__ == "__main__":
     # Set up testing
     testset = BagOfWordsTestDataSet('data/SST-3/dev.tsv')
     testloader = DataLoader(trainset, batch_size=BATCH_SIZE,
-                                          shuffle=True, num_workers=2)
+                                          shuffle=False, num_workers=2)
 
     print("Starting Testing\n")
 
