@@ -92,7 +92,7 @@ def eval(testloader,net):
     with torch.no_grad():
         outs = []
         for data in testloader:
-            vectors = data
+            vectors, labels = data
             outputs = net(vectors)
             # _, predicted = torch.max(outputs.data, 1)
             outs.append(outputs)
