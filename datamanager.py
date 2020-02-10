@@ -59,7 +59,7 @@ class BagOfWordsTestDataSet(Dataset):
         return len(self.vecs)
 
     def __getitem__(self, idx):
-        return [self.vecs[idx]]
+        return [self.vecs[idx],self.labels[idx]]
 
 
 def train(trainloader, model, criterion, optimizer):
