@@ -21,20 +21,23 @@ def make_train_vectors(input_filename, output_filename=None):
     # Get labels from file
     labels = get_labels(input_filename)
 
+    assert(len(labels)==len(vecs))
+
     return vecs, labels
 
 
 class BagOfWordsDataSet(Dataset):
     
-    def __init__(self, datafile, transform=None):
+    def __init__(self, datafile):
         self.vecs, self.labels = make_train_vectors(datafile)
-        self.transform = transform
     
     def __len__(self):
         return len(self.vecs)
 
     def __getitem__(self, idx):
-        return [self.vecs[idx],self.labels[idx]]
+        vec = self.vecs[idx]
+        label = self.labels[idx]
+        return {'vector': vec, 'label': label}
 
 
 def train(trainloader, model, criterion, optimizer):
@@ -77,4 +80,3 @@ if __name__ == "__main__":
     print("Starting Training\n")
     # Train
     train(trainloader, net, criterion, optimizer)
-
