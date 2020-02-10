@@ -46,7 +46,7 @@ def create_vectors(filename, vocab):
     hidden_length = len(vocab)
     with open(filename,'r') as reader:
         for line in reader:
-            tweet_tensor = torch.zeros(hidden_length,requires_grad=True)
+            tweet_tensor = torch.zeros(hidden_length)
             words_in_line = line.split('\t')[0].strip().split(' ')
             if words_in_line[0] != 'sentence':
                 for i in range(0,hidden_length):
@@ -69,7 +69,7 @@ def two_layer_feedforward(input_size, H):
                                    out_features = H))
     net.add_module("relu1", torch.nn.ReLU())
     net.add_module("dense2", torch.nn.Linear(in_features = H, 
-                                   out_features = 2))
+                                   out_features = 3))
     net.add_module("softmax", torch.nn.Softmax(dim=0))
 
     return net
