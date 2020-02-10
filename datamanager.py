@@ -88,13 +88,13 @@ def train(trainloader, model, criterion, optimizer):
     print('Finished Training')
 
 
-def eval(testloader,net,labels):
+def eval(testloader,net):
     with torch.no_grad():
         outs = []
         for data in testloader:
-            vectors, labels = data
+            vectors = data
             outputs = net(vectors)
-            _, predicted = torch.max(outputs.data, 1)
+            # _, predicted = torch.max(outputs.data, 1)
             outs.append(outputs)
             
         with open('base.txt','w') as writer:
