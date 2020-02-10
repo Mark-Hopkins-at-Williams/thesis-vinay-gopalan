@@ -7,6 +7,7 @@ from baseline import get_frequencies, create_vocab, create_vectors, get_labels, 
 
 FREQ_THRESHOLD = 15
 INPUT_SIZE = 0
+BATCH_SIZE = 50
 
 def make_train_vectors(input_filename, output_filename=None):
     # Create vectors
@@ -35,9 +36,7 @@ class BagOfWordsDataSet(Dataset):
         return len(self.vecs)
 
     def __getitem__(self, idx):
-        vec = self.vecs[idx]
-        label = self.labels[idx]
-        return {'vector': vec, 'label': label}
+        return [self.vecs[idx],self.labels[idx]]
 
 
 def train(trainloader, model, criterion, optimizer):
@@ -70,7 +69,7 @@ def train(trainloader, model, criterion, optimizer):
 if __name__ == "__main__":
     # Set up training
     trainset = BagOfWordsDataSet('data/SST-3/train.tsv')
-    trainloader = DataLoader(trainset, batch_size=4,
+    trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
     net = two_layer_feedforward(INPUT_SIZE, 784)
