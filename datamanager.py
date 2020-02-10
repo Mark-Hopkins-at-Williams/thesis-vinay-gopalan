@@ -96,7 +96,7 @@ def eval(testloader,net,labels):
             _, predicted = torch.max(outputs.data, 1)
             outs.append(outputs)
             
-        with open('base.txt',w) as writer:
+        with open('base.txt','w') as writer:
             for i in range(len(outs)):
                 writer.write("%s, %s\n" % (i,outs[i]))
 
