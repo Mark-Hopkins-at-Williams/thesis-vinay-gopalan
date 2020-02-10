@@ -7,7 +7,7 @@ from baseline import get_frequencies, create_vocab, create_vectors, get_labels, 
 
 FREQ_THRESHOLD = 15
 INPUT_SIZE = 0
-BATCH_SIZE = 50
+BATCH_SIZE = 4
 
 def make_train_vectors(input_filename, output_filename=None):
     # Create vectors
