@@ -4,7 +4,7 @@ export TASK_NAME=SST-3
 rm -rf data/SST-3/cached_train_bert-base-multilingual-cased_128_sst-3
 rm -rf data/SST-3/cached_dev_bert-base-multilingual-cased_128_sst-3
 
-python3 run_glue.py \
+/anaconda3/bin/python run_glue.py \
     --model_type bert \
     --model_name_or_path bert-base-multilingual-cased \
     --task_name $TASK_NAME \
