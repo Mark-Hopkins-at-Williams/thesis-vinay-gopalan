@@ -126,4 +126,4 @@ if __name__ == "__main__":
     print("Starting Testing\n")
 
     # Test
-    eval(testloader,net, testset.labels)
+    eval(testloader,net)
