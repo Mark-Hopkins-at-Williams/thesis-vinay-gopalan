@@ -236,8 +236,8 @@ def split_file(input_file, out1, out2, percentage, dev_split=False):
                     writer25.write("sentence\tlabel\n")
                 lines_in_smaller = 0
                 for line in reader:
-                    r = random.random()
-                    if r < percentage:
+                    r = random.uniform(0,1)
+                    if r <= percentage:
                         writer75.write(line)
                     else:
                         if not dev_split:
