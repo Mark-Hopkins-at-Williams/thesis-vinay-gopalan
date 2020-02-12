@@ -1,12 +1,14 @@
+""" Script containing functions and neural network for the bag-of-words model. """
+
 import torch
 import numpy as np
 
-"""Takes in two lists of predicted labels and actual labels and returns the accuracy in the form of a float. """
 def simple_accuracy(preds, labels):
-        return np.equal(preds, labels).mean()
+    """Takes in two lists of predicted labels and actual labels and returns the accuracy in the form of a float. """
+    return np.equal(preds, labels).mean()
 
-""" Returns a list of labels for sentences in a given file. """
 def get_labels(filename):
+    """ Returns a list of labels for sentences in a given file. """
     with open(filename,'r') as reader:
         labels = []
         for line in reader:
@@ -17,8 +19,8 @@ def get_labels(filename):
                 labels.append(0)
         return labels
 
-""" Returns a dictionary of the frequencies of all the words in a given file. """
 def get_frequencies(filename):
+    """ Returns a dictionary of the frequencies of all the words in a given file. """
     with open(filename,'r') as reader:
         frequencies = {}
         for line in reader:
@@ -30,8 +32,8 @@ def get_frequencies(filename):
                     frequencies[word] = 1
         return frequencies
 
-""" Creates a list of words as vocabulary by selecting words with a frequency > K. """
 def create_vocab(frequencies, K):
+    """ Creates a list of words as vocabulary by selecting words with a frequency > K. """
     if '…' in frequencies:
         del frequencies['…']
 
@@ -40,8 +42,8 @@ def create_vocab(frequencies, K):
             del frequencies[key]
     return list(frequencies)
 
-""" Creates 1-hot vectors from a given vocabulary set of words. """
 def create_vectors(filename, vocab):
+    """ Creates 1-hot vectors from a given vocabulary set of words. """
     tweet_vectors = []
     hidden_length = len(vocab)
     with open(filename,'r') as reader:
@@ -61,7 +63,7 @@ def create_vectors(filename, vocab):
 def two_layer_feedforward(input_size, H):
     """
     A two-layer feedforward neural network with 'input_size' input features, H hidden
-    features, and one softmax response value.
+    features, and a softmax response value.
     
     """
     net = torch.nn.Sequential()

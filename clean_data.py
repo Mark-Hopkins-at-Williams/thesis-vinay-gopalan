@@ -6,27 +6,6 @@ class ConllToken:
     def __init__(self, token_type):
         self.token_type = token_type
 
-class Sentiment(ConllToken):
-    def __init__(self, sentiment):
-        super().__init__("sentiment")
-        self.sentiment = sentiment
-    
-    @staticmethod
-    def is_instance(token):
-        return token.token_type == "sentiment"
-
-class EndOfSegment(ConllToken):
-    """ End of Segment token class. """
-    def __init__(self):
-        super().__init__("end")
-        
-    @staticmethod
-    def is_instance(token):
-        return token.token_type == "end"
-        
-    def __eq__(self, other):
-        return EndOfSegment.is_instance(other)
-
 
 class Sentiment(ConllToken):
     """ Sentiment token class. """
@@ -41,6 +20,19 @@ class Sentiment(ConllToken):
     def __eq__(self, other):
         return (Sentiment.is_instance(other) and 
                 other.sentiment == self.sentiment)
+
+
+class EndOfSegment(ConllToken):
+    """ End of Segment token class. """
+    def __init__(self):
+        super().__init__("end")
+        
+    @staticmethod
+    def is_instance(token):
+        return token.token_type == "end"
+        
+    def __eq__(self, other):
+        return EndOfSegment.is_instance(other)
 
 
 class BasicToken(ConllToken):

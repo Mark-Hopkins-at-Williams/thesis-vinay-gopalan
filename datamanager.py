@@ -1,9 +1,13 @@
+""" The script to train and run the bag-of-words model on a trainset and devset. """
+
 import torch
-import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
 from baseline import get_frequencies, create_vocab, create_vectors, get_labels, two_layer_feedforward, simple_accuracy
+
+##########################################################################################
+# Important Constants
 
 FREQ_THRESHOLD = 15
 BATCH_SIZE = 4
@@ -12,7 +16,19 @@ INPUT_SIZE = 0
 HIDDEN_LAYER = 784
 NUM_EPOCHS = 20
 
+##########################################################################################
+
+
 def make_train_vectors(input_filename):
+    """
+    Builds training vectors from sentences in a given file by doing the following:
+        1. Get the frequencies of all words in the file.
+        2. Create a GLOBAL vocabulary using the frequencies and a threshold (Same vocab used by testing data).
+        3. Create the vectors with vec[i] = 1 if vocab[i] in words_in_line. Else vec[i] = 0.
+        4. Get the actual labels from the file.
+        5. Return vecs, labels.
+    """
+
     # Create vectors
     frequencies = get_frequencies(input_filename)
     global VOCAB, INPUT_SIZE
@@ -30,6 +46,10 @@ def make_train_vectors(input_filename):
     return vecs, labels
 
 def make_test_vectors(input_filename):
+    """
+    Similar to make_train_vectors, except it only needs to create vectors using existing vocabulary.
+    """ 
+
     # Create vectors
     vecs = create_vectors(input_filename, VOCAB)
 
@@ -40,8 +60,8 @@ def make_test_vectors(input_filename):
 
     return vecs, labels
 
-
 class BagOfWordsTrainDataSet(Dataset):
+    """ The Bag-of-words training dataset containing sentence vectors and actual labels. """
     def __init__(self, datafile):
         self.vecs, self.labels = make_train_vectors(datafile)
     
@@ -51,8 +71,8 @@ class BagOfWordsTrainDataSet(Dataset):
     def __getitem__(self, idx):
         return [self.vecs[idx],self.labels[idx]]
 
-
 class BagOfWordsTestDataSet(Dataset):
+    """ The Bag-of-words testing dataset containing sentence vectors and actual labels. """
     def __init__(self, datafile):
         self.vecs, self.labels = make_test_vectors(datafile)
     
@@ -64,6 +84,7 @@ class BagOfWordsTestDataSet(Dataset):
 
 
 def train(trainloader, model, criterion, optimizer):
+    """ Trains a model on a trainset. """
     for epoch in range(NUM_EPOCHS):  # loop over the dataset multiple times
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
@@ -90,6 +111,12 @@ def train(trainloader, model, criterion, optimizer):
 
 
 def eval(testloader, net, outfile, labelsfile, actual_labels):
+    """ 
+    Evaluates the results of trained model on a testset and writes results to files:
+        1. outfile: Contains all the output softmax tensors (for analysis)
+        2. labelsfile: Contains all predicted labels (for analysis)
+        3. data/bag-of-words/results.txt: Contains the accuracy on the testset.
+    """
     with torch.no_grad():
         outs = []
         preds = []
@@ -103,6 +130,7 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
             outs.append(outputs)
             preds.append(predicted)
 
+    # WRITE PREDICTED LABELS TO LABELSFILE
         with open(labelsfile,'w') as label_writer:
             label_writer.write("index\tlabel\n")
             # Each batch is of the shape: (BATCH_SIZE * 1)
@@ -111,14 +139,15 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
             #   [x],
             #   [x],
             #   [x]]
-
+    
             # Keep track of no. of sentences
             counter = 0
             for batch in range(len(preds)):
                 for idx in range(BATCH_SIZE):
                     label_writer.write("%s\t%s\n" % (counter+1,preds[batch][idx].item()))
                     counter += 1
-        
+    
+    # WRITE OUTPUT SOFTMAX VECTORS TO OUTFILE    
         with open(outfile,'w') as out_writer:
             out_writer.write("index\ttensor\n")
             # Each batch is of the shape: (BATCH_SIZE * 3)
@@ -128,13 +157,14 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
             #   [x,x,x],
             #   [x,x,x]]
 
+            # Keep track of no. of sentences
             counter = 0
             for batch in range(len(outs)):
                 for idx in range(BATCH_SIZE):
                     out_writer.write("%s\t%s\n" % (counter+1,outs[batch][idx]))
                     counter += 1
 
-        # Compute accuracy
+    # COMPUTE AND WRITE ACCURACY TO RESULTS.TXT
         preds = get_labels(labelsfile)
         accur = simple_accuracy(preds,actual_labels)
         with open('data/bag-of-words/results.txt','w') as results:
@@ -144,9 +174,9 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
 
     print("Finished Testing")
 
-if __name__ == "__main__":
+if __name__ == "__main__": #### MAIN
     # Set up training
-    trainset = BagOfWordsTrainDataSet('data/SST-3/train.tsv')
+    trainset = BagOfWordsTrainDataSet('data/bag-of-words/train.tsv')
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
@@ -155,15 +185,15 @@ if __name__ == "__main__":
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
     print("Starting Training\n")
-    # Train
+    # TRAIN!
     train(trainloader, net, criterion, optimizer)
 
     # Set up testing
-    testset = BagOfWordsTestDataSet('data/SST-3/dev.tsv')
+    testset = BagOfWordsTestDataSet('data/bag-of-words/dev.tsv')
     testloader = DataLoader(testset, batch_size=BATCH_SIZE,
                                           shuffle=False, num_workers=2)
 
     print("Starting Testing\n")
 
-    # Test
-    eval(testloader,net,'outs.tsv','sentence_preds.tsv',testset.labels)
+    # TEST!
+    eval(testloader,net,'outs.tsv','preds.tsv',testset.labels)
