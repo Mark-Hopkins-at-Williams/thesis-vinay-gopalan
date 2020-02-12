@@ -176,7 +176,7 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
 
 if __name__ == "__main__": #### MAIN
     # Set up training
-    trainset = BagOfWordsTrainDataSet('data/bag-of-words/train.tsv')
+    trainset = BagOfWordsTrainDataSet('data/SST-3/train.tsv')
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
@@ -189,7 +189,7 @@ if __name__ == "__main__": #### MAIN
     train(trainloader, net, criterion, optimizer)
 
     # Set up testing
-    testset = BagOfWordsTestDataSet('data/bag-of-words/dev.tsv')
+    testset = BagOfWordsTestDataSet('data/SST-3/dev.tsv')
     testloader = DataLoader(testset, batch_size=BATCH_SIZE,
                                           shuffle=False, num_workers=2)
 
