@@ -54,3 +54,7 @@ NOTE: Before step 2, make sure that the trainset and testset are taken from the 
 1. From the root directory, run `python3 clean_data.py` to create tweet data. You will find train.tsv and dev.tsv in the folder `data/SST-3`.
 
 2. From the root directory, run `python3 datamanager.py`.
+
+### Results
+
+The accuracy results of the experiements on the dev set will be in the file `data/bag-of-words/results.txt`. Furthermore, all softmax output vectors are in `outs.tsv` in the root directory and all predicted labels are in `preds.tsv` in the root directory. 
