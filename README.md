@@ -1,10 +1,11 @@
 
-
 # Sentiment Analysis on Code-Mixed Tweets
 
-
 ### Collated Results
+
 The evaluation results of all experiments can be found at https://docs.google.com/spreadsheets/d/1uTEbuPMO01eKuVeVVugxpmxJLWidkFj3TWun7URgqQs/edit?usp=sharing
+
+## Fine-tuning Model
 
 ### Getting the data and setting it up
 
@@ -24,18 +25,32 @@ The evaluation results of all experiments can be found at https://docs.google.co
 
 ### Run GLUE experiments
 
-1. From the root directory, run `sh glue.sh`.
-
-2. You can find the results of the experiments in the directory `data/SST-3/checks` in the file `eval_results.txt`.
-
-### Run Baseline experiments
-
-1. From the root directory, run `python3 baseline.py`.
-
-2. You can find the results in `base.txt` in the root directory.
+From the root directory, run `sh glue.sh`.
 
 ### Results
 
-1. The results of the experiements on the dev set will be in the text file `eval_results.txt` in the specified output_dir `data/SST-3/checks/`.
+The results of the experiements on the dev set will be in the text file `eval_results.txt` in the specified output_dir `data/SST-3/checks/`.
 
-2. The results of the baseline experiments will be in the text file `base.txt` in the root directory.
+## Bag-of-words Model
+
+### Setup
+
+1. Inside `data`, create a directory `bag-of-words`.
+
+### Experiments
+
+#### Classify sentences of the form 'a g d f c b'
+
+NOTE: Before step 2, make sure that the trainset and testset are taken from the `data/bag-of-words/` folder.
+
+1. From the root directory, run `python3 classify_sentences.py` to create sentence data. You will find train.tsv and dev.tsv in the folder `data/bag-of-words`.
+
+2. From the root directory, run `python3 datamanager.py`.
+
+#### Classify SST-3 tweets dataset
+
+NOTE: Before step 2, make sure that the trainset and testset are taken from the `data/SST-3/` folder.
+
+1. From the root directory, run `python3 clean_data.py` to create tweet data. You will find train.tsv and dev.tsv in the folder `data/SST-3`.
+
+2. From the root directory, run `python3 datamanager.py`.
