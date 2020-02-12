@@ -137,8 +137,10 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
         # Compute accuracy
         preds = get_labels(labelsfile)
         accur = simple_accuracy(preds,actual_labels)
+        with open('data/bag-of-words/results.txt','w') as results:
+            results.write('acc = %s' % str(accur))
 
-        print("Accuracy on dev set: %s" % str(accur) )
+        print("Accuracy on dev set: %s" % str(accur))
 
     print("Finished Testing")
 
