@@ -1,12 +1,10 @@
 export GLUE_DIR=data
 export TASK_NAME=SST-3
 
-rm -rf data/SST-3/cached_train_bert-base-multilingual-cased_128_sst-3
-rm -rf data/SST-3/cached_dev_bert-base-multilingual-cased_128_sst-3
 
-/anaconda3/bin/python run_glue.py \
+python3 run_glue.py \
     --model_type bert \
-    --model_name_or_path bert-base-multilingual-cased \
+    --model_name_or_path bert-large-cased \
     --task_name $TASK_NAME \
     --do_train \
     --do_eval \
