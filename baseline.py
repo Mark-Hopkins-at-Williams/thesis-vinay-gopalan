@@ -11,7 +11,7 @@ def get_labels(filename):
         labels = []
         for line in reader:
             line_split = line.split('\t')
-            if line_split[0] != 'sentence' and len(line_split)>1:
+            if line_split[1].strip() != 'label' and len(line_split)>1:
                 labels.append(int(line_split[1]))
             elif len(line_split) < 1:
                 labels.append(0)
@@ -70,6 +70,6 @@ def two_layer_feedforward(input_size, H):
     net.add_module("relu1", torch.nn.ReLU())
     net.add_module("dense2", torch.nn.Linear(in_features = H, 
                                    out_features = 3))
-    net.add_module("softmax", torch.nn.Softmax(dim=0))
+    net.add_module("softmax", torch.nn.Softmax(dim=1))
 
     return net

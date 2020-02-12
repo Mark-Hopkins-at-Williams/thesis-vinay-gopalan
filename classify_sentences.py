@@ -35,20 +35,25 @@ def make_labels(sentences):
 
     return labels
 
-def sentences_to_tsv(filename):
-    with open(filename,'w') as writer:
-        # Write heading for file
-        writer.write("sentence\tlabel\n")
-        # Make sentences and labels
-        sentences = make_sentences(NUM_SENTENCES,SENTENCE_LENGTH)
-        labels = make_labels(sentences)
+def sentences_to_tsv(train_file, dev_file):
+    # Make sentences and labels
+    sentences = make_sentences(NUM_SENTENCES,SENTENCE_LENGTH)
+    labels = make_labels(sentences)
+    assert (len(sentences) == len(labels))
+    # Split data
+    mid = len(sentences) // 2
+    train_sentences, train_labels = sentences[:mid], labels[:mid]
+    dev_sentences, dev_labels = sentences[mid:], labels[mid:]
 
-        assert (len(sentences) == len(labels))
+    # Write data to files
+    with open(train_file,'w') as train_writer:
+        train_writer.write("sentence\tlabel\n")
+        for i in range(mid):
+            train_writer.write("%s\t%s\n"%(train_sentences[i],train_labels[i]))
 
-        # Write data to file
-        for i in range(len(sentences)):
-            writer.write("%s\t%s\n"%(sentences[i],labels[i]))
-        
-        # Split file into train.tsv and dev.tsv
-        split_file('sentence_data.tsv','data/bag-of-words/train.tsv','data/bag-of-words/dev.tsv',0.7,dev_split=True)
+    with open(dev_file,'w') as dev_writer:
+        dev_writer.write("sentence\tlabel\n")
+        for i in range(mid):
+            dev_writer.write("%s\t%s\n"%(dev_sentences[i],dev_labels[i]))
+
 
