@@ -10,7 +10,7 @@ BATCH_SIZE = 4
 VOCAB = {}
 INPUT_SIZE = 0
 HIDDEN_LAYER = 784
-NUM_EPOCHS = 50
+NUM_EPOCHS = 20
 
 def make_train_vectors(input_filename):
     # Create vectors
