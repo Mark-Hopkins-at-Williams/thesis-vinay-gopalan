@@ -10,6 +10,7 @@ BATCH_SIZE = 4
 VOCAB = {}
 INPUT_SIZE = 0
 HIDDEN_LAYER = 784
+NUM_EPOCHS = 50
 
 def make_train_vectors(input_filename):
     # Create vectors
@@ -63,7 +64,7 @@ class BagOfWordsTestDataSet(Dataset):
 
 
 def train(trainloader, model, criterion, optimizer):
-    for epoch in range(100):  # loop over the dataset multiple times
+    for epoch in range(NUM_EPOCHS):  # loop over the dataset multiple times
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
             # get the inputs; data is a list of [inputs, labels]
@@ -141,10 +142,9 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
 
     print("Finished Testing")
 
-
 if __name__ == "__main__":
     # Set up training
-    trainset = BagOfWordsTrainDataSet('data/bag-of-words/train.tsv')
+    trainset = BagOfWordsTrainDataSet('data/SST-3/train.tsv')
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
@@ -157,7 +157,7 @@ if __name__ == "__main__":
     train(trainloader, net, criterion, optimizer)
 
     # Set up testing
-    testset = BagOfWordsTestDataSet('data/bag-of-words/dev.tsv')
+    testset = BagOfWordsTestDataSet('data/SST-3/dev.tsv')
     testloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=False, num_workers=2)
 
