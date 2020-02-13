@@ -73,3 +73,5 @@ def sentences_to_tsv(train_file, dev_file):
             dev_writer.write("%s\t%s\n"%(dev_sentences[i],dev_labels[i]))
 
 
+if __name__ == "__main__":
+    sentences_to_tsv('data/bag-of-words/train.tsv','data/bag-of-words/dev.tsv')
