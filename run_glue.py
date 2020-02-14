@@ -46,11 +46,14 @@ from transformers import (WEIGHTS_NAME, BertConfig,
 
 from transformers import AdamW, WarmupLinearSchedule
 
-from transformers import glue_compute_metrics as compute_metrics
+from sst3_metrics import sst3_compute_metrics as compute_metrics
 from transformers import glue_output_modes as output_modes
 from transformers import glue_processors as processors
 from transformers import glue_convert_examples_to_features as convert_examples_to_features
+from Sst3Processor import Sst3Processor
 
+processors["sst-3"] = Sst3Processor
+output_modes["sst-3"] = "classification"
 logger = logging.getLogger(__name__)
 
 ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig, XLNetConfig, XLMConfig, RobertaConfig)), ())
@@ -249,11 +252,15 @@ def evaluate(args, model, tokenizer, prefix=""):
         results.update(result)
 
         output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
+        
+        # Write simple accuracy and labels to file
         with open(output_eval_file, "w") as writer:
             logger.info("***** Eval results {} *****".format(prefix))
-            for key in sorted(result.keys()):
-                logger.info("  %s = %s", key, str(result[key]))
-                writer.write("%s = %s\n" % (key, str(result[key])))
+            logger.info("  %s = %s", 'acc', str(result['acc']))
+            writer.write("%s = %s\n" % ('acc', str(result['acc'])))
+            for x in range(0,len(result['pred'])):
+                writer.write(str(x+1)+ " predicted: "+str(result['pred'][x])+"\tactual: "+str(result['actual'][x])+"\n")
+            logger.info("results added to eval_results.txt\n")
 
     return results
 
