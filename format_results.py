@@ -23,11 +23,11 @@ def format_results(json_file, preds_file, outfile):
 
         # To ensure no blank line at EOF
         if int(preds[num_lines-1]) == 0:
-            writer.write('%s,negative\n'%(data[num_lines-1]['uid']))
+            writer.write('%s,negative'%(data[num_lines-1]['uid']))
         elif int(preds[num_lines-1]) == 1:
-            writer.write('%s,neutral\n'%(data[num_lines-1]['uid']))
+            writer.write('%s,neutral'%(data[num_lines-1]['uid']))
         else:
-            writer.write('%s,positive\n'%(data[num_lines-1]['uid']))
+            writer.write('%s,positive'%(data[num_lines-1]['uid']))
 
 
 if __name__ == "__main__":
