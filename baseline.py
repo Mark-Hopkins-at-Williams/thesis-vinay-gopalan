@@ -60,7 +60,7 @@ def create_vectors(filename, vocab):
 
 """ Model for setting baseline. """ 
 
-def two_layer_feedforward(input_size, H):
+def four_layer_feedforward(input_size, H1, H2, H3):
     """
     A two-layer feedforward neural network with 'input_size' input features, H hidden
     features, and a softmax response value.
@@ -68,10 +68,17 @@ def two_layer_feedforward(input_size, H):
     """
     net = torch.nn.Sequential()
     net.add_module("dense1", torch.nn.Linear(in_features = input_size, 
-                                   out_features = H))
+                                   out_features = H1))
     net.add_module("relu1", torch.nn.ReLU())
-    net.add_module("dense2", torch.nn.Linear(in_features = H, 
+    net.add_module("dense2", torch.nn.Linear(in_features = H1, 
+                                   out_features = H2))
+    net.add_module("relu2", torch.nn.ReLU())
+    net.add_module("dense3", torch.nn.Linear(in_features = H2, 
+                                   out_features = H3))
+    net.add_module("relu3", torch.nn.ReLU())
+    net.add_module("dense4", torch.nn.Linear(in_features = H3, 
                                    out_features = 3))
     net.add_module("softmax", torch.nn.Softmax(dim=1))
+
 
     return net
