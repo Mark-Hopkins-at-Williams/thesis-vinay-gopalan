@@ -266,7 +266,7 @@ def evaluate(args, model, tokenizer, prefix=""):
         # Write predicted labels to file
         with open(output_labels_file,"w") as labels_writer:
             for x in range(0,len(result['pred'])):
-                labels_writer.write(result['pred'][x])
+                labels_writer.write("%s\n"%(result['pred'][x]))
 
             logger.info("labels added to labels.txt\n")
 

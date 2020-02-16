@@ -15,9 +15,21 @@ def format_results(json_file, preds_file, outfile):
     with open(outfile,'w') as writer:
         writer.write('Uid,Sentiment\n')
         for i in range(num_lines-1):
-            writer.write('%s,%s\n'%(tweets_data[i]['uid'],preds[i]))
+            if int(preds[i]) == 0:
+                writer.write('%s,negative\n'%(tweets_data[i]['uid']))
+            elif int(preds[i]) == 1:
+                writer.write('%s,neutral\n'%(tweets_data[i]['uid']))
+            else:
+                writer.write('%s,positive\n'%(tweets_data[i]['uid']))
+
         # To ensure no blank line at EOF
-        writer.write('%s,%s'%(tweets_data[num_lines-1]['uid'],preds[num_lines-1]))
+        if int(preds[num_lines-1]) == 0:
+            writer.write('%s,negative\n'%(tweets_data[num_lines-1]['uid']))
+        elif int(preds[num_lines-1]) == 1:
+            writer.write('%s,neutral\n'%(tweets_data[num_lines-1]['uid']))
+        else:
+            writer.write('%s,positive\n'%(tweets_data[num_lines-1]['uid']))
+
 
 if __name__ == "__main__":
     conll_to_json('data/dev_3k_split_conll.txt','data/SST-3/dev_data.json')
