@@ -4,7 +4,7 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
-from baseline import get_frequencies, create_vocab, create_vectors, get_labels, two_layer_feedforward, simple_accuracy
+from baseline import get_frequencies, create_vocab, create_vectors, get_labels, n_layer_feedforward, simple_accuracy
 
 ##########################################################################################
 # Important Constants
@@ -182,7 +182,7 @@ if __name__ == "__main__": #### MAIN
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
-    net = two_layer_feedforward(INPUT_SIZE, H1, H2, H3)
+    net = n_layer_feedforward(INPUT_SIZE, H1, H2, H3)
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 

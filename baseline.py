@@ -60,7 +60,7 @@ def create_vectors(filename, vocab):
 
 """ Model for setting baseline. """ 
 
-def four_layer_feedforward(input_size, H1, H2, H3):
+def n_layer_feedforward(input_size, H1, H2, H3):
     """
     A two-layer feedforward neural network with 'input_size' input features, H hidden
     features, and a softmax response value.
