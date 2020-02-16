@@ -78,6 +78,20 @@ class Username(ConllToken):
         return Username.is_instance(other) and other.value == self.value
 
 
+class UID(ConllToken):
+    """ Unique ID token class. """
+    def __init__(self, value):
+        super().__init__("uid")
+        self.value = value
+
+    @staticmethod
+    def is_instance(token):
+        return token.token_type == "uid"
+
+    def __eq__(self, other):
+        return UID.is_instance(other) and other.value == self.value
+
+
 def tokenize_conll(lines):
     """ Tokenize lines in a file. """
     for line in lines:
@@ -86,6 +100,7 @@ def tokenize_conll(lines):
         else:
             fields = line.split("\t")
             if fields[0] == "meta":
+                yield UID(fields[1].strip())
                 yield Sentiment(fields[2].strip())
             else:
                 yield BasicToken(fields[0].strip())
@@ -155,6 +170,8 @@ def cluster_usernames(tokens):
         yield Username(builder) 
 
 
+# This function will be used to also store the UID of each sentence in order to eventually 
+# write data in the format desired by CodaLab to compute the F score
 def conll_to_json(conll_file, json_file):
     """ Convert conll format to JSON. """
     result = []
@@ -167,6 +184,8 @@ def conll_to_json(conll_file, json_file):
         for tok in tokens:
             if Sentiment.is_instance(tok):
                 next_segment['sentiment'] = tok.sentiment
+            elif UID.is_instance(tok):
+                next_segment['uid'] = tok.uid
             elif EndOfSegment.is_instance(tok):
                 next_segment['segment'] = ' '.join(segment_tokens)
                 result.append(next_segment)

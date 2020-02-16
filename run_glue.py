@@ -252,15 +252,23 @@ def evaluate(args, model, tokenizer, prefix=""):
         results.update(result)
 
         output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
-        
-        # Write simple accuracy and labels to file
+        # Store output labels in a file
+        output_labels_file = os.path.join(eval_output_dir, "labels.txt")
+
+        # Write simple accuracy to file
         with open(output_eval_file, "w") as writer:
             logger.info("***** Eval results {} *****".format(prefix))
             logger.info("  %s = %s", 'acc', str(result['acc']))
             writer.write("%s = %s\n" % ('acc', str(result['acc'])))
+            
+            logger.info("accuracy added to eval_results.txt\n")
+
+        # Write predicted labels to file
+        with open(output_labels_file,"w") as labels_writer:
             for x in range(0,len(result['pred'])):
-                writer.write(str(x+1)+ " predicted: "+str(result['pred'][x])+"\tactual: "+str(result['actual'][x])+"\n")
-            logger.info("results added to eval_results.txt\n")
+                labels_writer.write(result['pred'][x])
+
+            logger.info("labels added to labels.txt\n")
 
     return results
 
