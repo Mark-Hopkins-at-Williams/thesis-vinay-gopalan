@@ -58,11 +58,11 @@ def create_vectors(filename, vocab):
         return tweet_vectors
 
 
-""" Model for setting baseline. """ 
+""" Models for setting baseline. """ 
 
-def n_layer_feedforward(input_size, H1, H2, H3):
+def four_layer_feedforward(input_size, H1, H2, H3):
     """
-    A two-layer feedforward neural network with 'input_size' input features, H hidden
+    A four-layer feedforward neural network with 'input_size' input features, H1, H2, H3 hidden
     features, and a softmax response value.
     
     """
@@ -82,3 +82,22 @@ def n_layer_feedforward(input_size, H1, H2, H3):
 
 
     return net
+
+
+def two_layer_feedforward(input_size, H):
+    """
+    A two-layer feedforward neural network with 'input_size' input features, H hidden
+    features, and a softmax response value.
+    
+    """
+    net = torch.nn.Sequential()
+    net.add_module("dense1", torch.nn.Linear(in_features = input_size, 
+                                   out_features = H))
+    net.add_module("relu1", torch.nn.ReLU())
+    net.add_module("dense2", torch.nn.Linear(in_features = H, 
+                                   out_features = 3))
+    net.add_module("softmax", torch.nn.Softmax(dim=1))
+
+    return net
+
+
