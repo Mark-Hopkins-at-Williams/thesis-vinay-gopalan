@@ -1,7 +1,11 @@
-""" Script containing functions and neural network for the bag-of-words model. """
+""" Script containing functions and neural networks for the bag-of-words and count-words models. """
 
 import torch
 import numpy as np
+
+####################################################################################################################
+# Common to both Bag-of-Words and Count-Words Models
+####################################################################################################################
 
 def simple_accuracy(preds, labels):
     """Takes in two lists of predicted labels and actual labels and returns the accuracy in the form of a float. """
@@ -42,21 +46,6 @@ def create_vocab(frequencies, K):
             del frequencies[key]
     return list(frequencies)
 
-def create_vectors(filename, vocab):
-    """ Creates 1-hot vectors from a given vocabulary set of words. """
-    tweet_vectors = []
-    hidden_length = len(vocab)
-    with open(filename,'r') as reader:
-        for line in reader:
-            tweet_tensor = torch.zeros(hidden_length)
-            words_in_line = line.split('\t')[0].strip().split(' ')
-            if words_in_line[0] != 'sentence':
-                for i in range(0,hidden_length):
-                    if vocab[i] in words_in_line:
-                        tweet_tensor[i] = 1
-                tweet_vectors.append(tweet_tensor)
-        return tweet_vectors
-
 
 """ Models for setting baseline. """ 
 
@@ -80,7 +69,6 @@ def four_layer_feedforward(input_size, H1, H2, H3):
                                    out_features = 3))
     net.add_module("softmax", torch.nn.Softmax(dim=1))
 
-
     return net
 
 
@@ -100,4 +88,53 @@ def two_layer_feedforward(input_size, H):
 
     return net
 
+####################################################################################################################
+# Only used in Bag-of-Words model
+####################################################################################################################
 
+def create_vectors(filename, vocab):
+    """ Creates 1-hot vectors from a given vocabulary set of words. """
+    tweet_vectors = []
+    hidden_length = len(vocab)
+    with open(filename,'r') as reader:
+        for line in reader:
+            tweet_tensor = torch.zeros(hidden_length)
+            words_in_line = line.split('\t')[0].strip().split(' ')
+            if words_in_line[0] != 'sentence':
+                for i in range(0,hidden_length):
+                    if vocab[i] in words_in_line:
+                        tweet_tensor[i] = 1
+                tweet_vectors.append(tweet_tensor)
+        return tweet_vectors
+
+
+####################################################################################################################
+# Only used in Count-Words model
+####################################################################################################################
+
+
+def get_word_frequencies(words):
+    """ Returns a dictionary of the frequencies of all the words in a given line. """
+    freq = {}
+    for word in words:
+        if word in freq:
+            freq[word] += 1
+        else:
+            freq[word] = 1
+    return freq
+
+def create_count_vectors(filename, vocab):
+    """ Creates vectors with word count from a given vocabulary set of words. """
+    tweet_vectors = []
+    hidden_length = len(vocab)
+    with open(filename,'r') as reader:
+        for line in reader:
+            tweet_tensor = torch.zeros(hidden_length)
+            words_in_line = line.split('\t')[0].strip().split(' ')
+            line_frequencies = get_word_frequencies(words_in_line)
+            if words_in_line[0] != 'sentence':
+                for i in range(0,hidden_length):
+                    if vocab[i] in words_in_line:
+                        tweet_tensor[i] = line_frequencies[vocab[i]]
+                tweet_vectors.append(tweet_tensor)
+        return tweet_vectors
