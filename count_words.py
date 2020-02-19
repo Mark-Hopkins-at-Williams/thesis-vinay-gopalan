@@ -167,7 +167,7 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
     # COMPUTE AND WRITE ACCURACY TO RESULTS.TXT
         preds = get_labels(labelsfile)
         accur = simple_accuracy(preds,actual_labels)
-        with open('data/bag-of-words/results.txt','w') as results:
+        with open('data/count-words/results.txt','w') as results:
             results.write('acc = %s' % str(accur))
 
         print("Accuracy on dev set: %s" % str(accur))
@@ -176,7 +176,7 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
 
 if __name__ == "__main__": #### MAIN
     # Set up training
-    trainset = CountWordsTrainDataSet('data/SST-3/train.tsv')
+    trainset = CountWordsTrainDataSet('data/count-words/train.tsv')
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
@@ -189,11 +189,11 @@ if __name__ == "__main__": #### MAIN
     train(trainloader, net, criterion, optimizer)
 
     # Set up testing
-    testset = CountWordsTestDataSet('data/SST-3/dev.tsv')
+    testset = CountWordsTestDataSet('data/count-words/dev.tsv')
     testloader = DataLoader(testset, batch_size=BATCH_SIZE,
                                           shuffle=False, num_workers=2)
 
     print("Starting Testing\n")
 
     # TEST!
-    eval(testloader,net,'outs.tsv','preds.tsv',testset.labels)
+    eval(testloader,net,'data/count-words/outs.tsv','data/count-words/preds.tsv',testset.labels)
