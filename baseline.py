@@ -114,6 +114,25 @@ def two_layer_feedforward(input_size, H):
 
     return net
 
+def three_layer_feedforward(input_size, H1, H2):
+    """
+    A three-layer feedforward neural network with 'input_size' input features, H1, H2 hidden
+    features, and a softmax response value.
+    
+    """
+    net = torch.nn.Sequential()
+    net.add_module("dense1", torch.nn.Linear(in_features = input_size, 
+                                   out_features = H1))
+    net.add_module("relu1", torch.nn.ReLU())
+    net.add_module("dense2", torch.nn.Linear(in_features = H1, 
+                                   out_features = H2))
+    net.add_module("relu2", torch.nn.ReLU())
+    net.add_module("dense3", torch.nn.Linear(in_features = H2, 
+                                   out_features = 3))
+    net.add_module("softmax", torch.nn.Softmax(dim=1))
+
+    return net
+
 ####################################################################################################################
 # Only used in Bag-of-Words model
 ####################################################################################################################

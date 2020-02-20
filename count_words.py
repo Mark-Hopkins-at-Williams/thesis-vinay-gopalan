@@ -4,7 +4,7 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
-from baseline import get_frequencies, create_vocab, create_count_vectors, get_labels, two_layer_feedforward, four_layer_feedforward, simple_accuracy
+from baseline import get_frequencies, create_vocab, create_count_vectors, get_labels, two_layer_feedforward, three_layer_feedforward, four_layer_feedforward, simple_accuracy
 
 ##########################################################################################
 # Important Constants
