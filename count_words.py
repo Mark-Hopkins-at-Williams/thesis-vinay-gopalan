@@ -183,7 +183,7 @@ if __name__ == "__main__": #### MAIN
                                           shuffle=True, num_workers=2)
 
     # For 2 layer feedforward
-    net = two_layer_feedforward(INPUT_SIZE, H)
+    net = two_layer_feedforward(INPUT_SIZE, H1)
 
     # For 4 layer feedforward
     #net = four_layer_feedforward(INPUT_SIZE, H1, H2, H3)
