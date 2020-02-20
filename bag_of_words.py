@@ -13,7 +13,7 @@ FREQ_THRESHOLD = 15
 BATCH_SIZE = 6
 VOCAB = []
 INPUT_SIZE = 0
-H1 = 784
+H1 = 350
 H2 = 385
 H3 = 112
 NUM_EPOCHS = 20
@@ -182,7 +182,12 @@ if __name__ == "__main__": #### MAIN
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
+    # For 2 layer feedforward
     net = two_layer_feedforward(INPUT_SIZE, H1)
+
+    # For 4 layer feedforward
+    #net = four_layer_feedforward(INPUT_SIZE, H1, H2, H3)
+
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
