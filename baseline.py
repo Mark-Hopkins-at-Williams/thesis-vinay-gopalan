@@ -36,6 +36,32 @@ def get_frequencies(filename):
                     frequencies[word] = 1
         return frequencies
 
+def get_bigram_frequencies(filename):
+    """ Returns a dictionary of the frequencies of all words and all bigrams in a given file. """
+    with open(filename,'r') as reader:
+        frequencies = {}
+        for line in reader:
+            words_in_line = line.split('\t')[0].strip().split(' ')
+            for word in words_in_line:
+                if word in frequencies:
+                    frequencies[word] += 1
+                else:
+                    frequencies[word] = 1
+            # Make BiGrams
+            for i in range(1,len(words_in_line),2):
+                if i != len(words_in_line) - 1:
+                    bigram1 = words_in_line[i-1] + " " + words_in_line[i]
+                    if bigram1 in frequencies:
+                        frequencies[bigram1] += 1
+                    else:
+                        frequencies[bigram1] = 1
+                    bigram2 = words_in_line[i] + " " +  words_in_line[i+1]
+                    if bigram2 in frequencies:
+                        frequencies[bigram2] += 1
+                    else:
+                        frequencies[bigram2] = 1
+        return frequencies
+
 def create_vocab(frequencies, K):
     """ Creates a list of words as vocabulary by selecting words with a frequency > K. """
     if '…' in frequencies:
