@@ -195,9 +195,7 @@ def conll_to_json(conll_file, json_file):
         next_segment = dict()
         segment_tokens = []
         for tok in tokens:
-            if Sentiment.is_instance(tok):
-                next_segment['sentiment'] = tok.sentiment
-            elif UID.is_instance(tok):
+            if UID.is_instance(tok):
                 next_segment['uid'] = tok.value
             elif EndOfSegment.is_instance(tok):
                 next_segment['segment'] = ' '.join(segment_tokens)
@@ -206,9 +204,8 @@ def conll_to_json(conll_file, json_file):
                 segment_tokens = []
             elif BasicToken.is_instance(tok):
                 segment_tokens.append(tok.value)
-    if 'sentiment' in next_segment:
-        next_segment['segment'] = ' '.join(segment_tokens)
-        result.append(next_segment)
+    next_segment['segment'] = ' '.join(segment_tokens)
+    result.append(next_segment)
     with open(json_file, 'w') as writer:
         writer.write(json.dumps(result, indent=4))
 
