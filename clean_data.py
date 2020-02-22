@@ -247,7 +247,7 @@ def conll_to_tsv(conll_file, tsv_file, test=False):
                         sentiment = -1
                         segment_tokens = []
                     else:
-                        next_segment += '\t '
+                        next_segment += '\t1'
                         writer.write(next_segment + '\n')
                         index += 1
                         segment_tokens = []
@@ -256,7 +256,7 @@ def conll_to_tsv(conll_file, tsv_file, test=False):
             
             if test:
                 next_segment = ' '.join(segment_tokens)
-                next_segment += '\t '
+                next_segment += '\t1'
                 writer.write(next_segment + '\n')
                 index += 1
             else:
