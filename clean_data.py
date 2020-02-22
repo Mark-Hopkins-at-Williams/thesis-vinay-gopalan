@@ -296,3 +296,4 @@ if __name__ == "__main__":
     conll_to_tsv('data/train_14k_split_conll.txt','data/SST-3/train.tsv')
     # conll_to_tsv('data/dev_3k_split_conll.txt','data/SST-3/dev.tsv')
     conll_to_tsv('data/Hindi_test.txt','data/SST-3/dev.tsv',test=True)
+    conll_to_json('data/Hindi_test.txt','data/SST-3/dev_data.json')
