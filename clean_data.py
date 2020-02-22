@@ -184,12 +184,12 @@ def cluster_usernames(tokens):
 
 
 # This function will be used to also store the UID of each sentence in order to eventually 
-# write data in the format desired by CodaLab to compute the F score
+# write output data in the format desired by CodaLab to compute the F score
 def conll_to_json(conll_file, json_file):
     """ Convert conll format to JSON. """
     result = []
     with open(conll_file) as reader:
-        tokens = tokenize_conll([line for line in reader])
+        tokens = tokenize_test_conll([line for line in reader])
         tokens = cluster_urls(tokens)
         tokens = cluster_usernames(tokens)
         next_segment = dict()
