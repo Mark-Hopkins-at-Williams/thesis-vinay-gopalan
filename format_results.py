@@ -31,6 +31,6 @@ def format_results(json_file, preds_file, outfile):
 
 
 if __name__ == "__main__":
-    conll_to_json('data/dev_3k_split_conll.txt','data/SST-3/dev_data.json')
+    conll_to_json('data/Hindi_test.txt','data/SST-3/dev_data.json')
     format_results('data/SST-3/dev_data.json','data/SST-3/checks/labels.txt','data/SST-3/answer.txt')
 
