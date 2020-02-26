@@ -2,6 +2,7 @@
 
 import torch
 import numpy as np
+import copy
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
 from baseline import get_bigram_frequencies, get_labels, create_vocab, simple_accuracy
@@ -115,7 +116,8 @@ def train(trainloader, model, criterion, optimizer):
         
         acc = eval(testloader,net,'data/bag-of-words/outs.tsv','data/bag-of-words/preds.tsv',testset.labels)
         if acc > best_so_far:
-            best_model = model.clone()
+            best_model = copy.deepcopy(model)
+            best_so_far = acc
     
     print('Finished Training')
     return best_model
