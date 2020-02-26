@@ -192,6 +192,11 @@ if __name__ == "__main__": #### MAIN
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
+    # Set up testing
+    testset = BiGramsTestDataSet('data/bag-of-words/dev.tsv')
+    testloader = DataLoader(testset, batch_size=BATCH_SIZE,
+                                          shuffle=False, num_workers=2)
+
     # For 2 layer feedforward
     net = two_layer_feedforward(INPUT_SIZE, H1)
 
@@ -204,11 +209,6 @@ if __name__ == "__main__": #### MAIN
     print("Starting Training\n")
     # TRAIN!
     trained_model = train(trainloader, net, criterion, optimizer)
-
-    # Set up testing
-    testset = BiGramsTestDataSet('data/bag-of-words/dev.tsv')
-    testloader = DataLoader(testset, batch_size=BATCH_SIZE,
-                                          shuffle=False, num_workers=2)
 
     print("Starting Testing\n")
 
