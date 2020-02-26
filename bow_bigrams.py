@@ -89,6 +89,8 @@ class BiGramsTestDataSet(Dataset):
 
 def train(trainloader, model, criterion, optimizer):
     """ Trains a model on a trainset. """
+    best_model = model
+    best_so_far = -1
     for epoch in range(NUM_EPOCHS):  # loop over the dataset multiple times
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
@@ -110,8 +112,13 @@ def train(trainloader, model, criterion, optimizer):
                 print('[%d, %5d] loss: %.3f' %
                     (epoch + 1, i + 1, running_loss / 1000))
                 running_loss = 0.0
-
+        
+        acc = eval(testloader,net,'data/bag-of-words/outs.tsv','data/bag-of-words/preds.tsv',testset.labels)
+        if acc > best_so_far:
+            best_model = model.clone()
+    
     print('Finished Training')
+    return best_model
 
 
 def eval(testloader, net, outfile, labelsfile, actual_labels):
@@ -177,6 +184,7 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
         print("Accuracy on dev set: %s" % str(accur))
 
     print("Finished Testing")
+    return accur
 
 if __name__ == "__main__": #### MAIN
     # Set up training
@@ -195,7 +203,7 @@ if __name__ == "__main__": #### MAIN
 
     print("Starting Training\n")
     # TRAIN!
-    train(trainloader, net, criterion, optimizer)
+    trained_model = train(trainloader, net, criterion, optimizer)
 
     # Set up testing
     testset = BiGramsTestDataSet('data/bag-of-words/dev.tsv')
@@ -205,4 +213,4 @@ if __name__ == "__main__": #### MAIN
     print("Starting Testing\n")
 
     # TEST!
-    eval(testloader,net,'data/bag-of-words/outs.tsv','data/bag-of-words/preds.tsv',testset.labels)
+    eval(testloader,trained_model,'data/bag-of-words/outs.tsv','data/bag-of-words/preds.tsv',testset.labels)
