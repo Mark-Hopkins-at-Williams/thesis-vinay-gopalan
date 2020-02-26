@@ -57,9 +57,11 @@ def two_layer_feedforward(input_size, H):
     
     """
     net = torch.nn.Sequential()
+    net.add_module("dropout1", torch.nn.Dropout(p=0.2))
     net.add_module("dense1", torch.nn.Linear(in_features = input_size, 
                                    out_features = H))
     net.add_module("relu1", torch.nn.ReLU())
+    net.add_module("dropout2", torch.nn.Dropout(p=0.5))
     net.add_module("dense2", torch.nn.Linear(in_features = H, 
                                    out_features = 3))
     net.add_module("softmax", torch.nn.Softmax(dim=1))
