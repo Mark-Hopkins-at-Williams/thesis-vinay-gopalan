@@ -78,15 +78,43 @@ class Username(ConllToken):
         return Username.is_instance(other) and other.value == self.value
 
 
+class UID(ConllToken):
+    """ Unique ID token class. """
+    def __init__(self, value):
+        super().__init__("uid")
+        self.value = value
+
+    @staticmethod
+    def is_instance(token):
+        return token.token_type == "uid"
+
+    def __eq__(self, other):
+        return UID.is_instance(other) and other.value == self.value
+
+
 def tokenize_conll(lines):
-    """ Tokenize lines in a file. """
+    """ Tokenize lines in a file with provided labels/sentiments. """
     for line in lines:
         if line.strip() == "":
             yield EndOfSegment()
         else:
             fields = line.split("\t")
             if fields[0] == "meta":
+                yield UID(fields[1].strip())
                 yield Sentiment(fields[2].strip())
+            else:
+                yield BasicToken(fields[0].strip())
+
+
+def tokenize_test_conll(lines):
+    """ Tokenize lines in a file without provided labels/sentiments. """
+    for line in lines:
+        if line.strip() == "":
+            yield EndOfSegment()
+        else:
+            fields = line.split("\t")
+            if fields[0] == "meta":
+                yield UID(fields[1].strip())
             else:
                 yield BasicToken(fields[0].strip())
 
@@ -155,18 +183,20 @@ def cluster_usernames(tokens):
         yield Username(builder) 
 
 
+# This function will be used to also store the UID of each sentence in order to eventually 
+# write output data in the format desired by CodaLab to compute the F score
 def conll_to_json(conll_file, json_file):
     """ Convert conll format to JSON. """
     result = []
     with open(conll_file) as reader:
-        tokens = tokenize_conll([line for line in reader])
+        tokens = tokenize_test_conll([line for line in reader])
         tokens = cluster_urls(tokens)
         tokens = cluster_usernames(tokens)
         next_segment = dict()
         segment_tokens = []
         for tok in tokens:
-            if Sentiment.is_instance(tok):
-                next_segment['sentiment'] = tok.sentiment
+            if UID.is_instance(tok):
+                next_segment['uid'] = tok.value
             elif EndOfSegment.is_instance(tok):
                 next_segment['segment'] = ' '.join(segment_tokens)
                 result.append(next_segment)
@@ -174,21 +204,27 @@ def conll_to_json(conll_file, json_file):
                 segment_tokens = []
             elif BasicToken.is_instance(tok):
                 segment_tokens.append(tok.value)
-    if 'sentiment' in next_segment:
-        next_segment['segment'] = ' '.join(segment_tokens)
-        result.append(next_segment)
+    next_segment['segment'] = ' '.join(segment_tokens)
+    result.append(next_segment)
     with open(json_file, 'w') as writer:
         writer.write(json.dumps(result, indent=4))
 
 
-def conll_to_tsv(conll_file, tsv_file):
+def conll_to_tsv(conll_file, tsv_file, test=False):
     """ Convert conll format to TSV. """
     with open(conll_file) as reader:
         with open(tsv_file, 'w') as writer:
-            tokens = tokenize_conll([line for line in reader])
+            if test:
+                index = 0
+                tokens = tokenize_test_conll([line for line in reader])
+            else:
+                tokens = tokenize_conll([line for line in reader])
             tokens = cluster_urls(tokens)
             tokens = cluster_usernames(tokens)
-            writer.write("sentence\tlabel\n")
+            if test:
+                writer.write("sentence\tindex\n")
+            else:
+                writer.write("sentence\tlabel\n")
             segment_tokens = []
             sentiment = -1
             for tok in tokens:
@@ -201,17 +237,30 @@ def conll_to_tsv(conll_file, tsv_file):
                         sentiment = 2
                 elif EndOfSegment.is_instance(tok):                    
                     next_segment = ' '.join(segment_tokens)
-                    next_segment += '\t' + str(sentiment)
-                    if sentiment >= 0:
+                    if not test:
+                        next_segment += '\t' + str(sentiment)
+                        if sentiment >= 0:
+                            writer.write(next_segment + '\n')
+                        sentiment = -1
+                        segment_tokens = []
+                    else:
+                        next_segment += '\t1'
                         writer.write(next_segment + '\n')
-                    sentiment = -1
-                    segment_tokens = []
+                        index += 1
+                        segment_tokens = []
                 elif BasicToken.is_instance(tok):
                     segment_tokens.append(tok.value)
-            if sentiment >= 0:
+            
+            if test:
                 next_segment = ' '.join(segment_tokens)
-                next_segment += '\t' + str(sentiment)
+                next_segment += '\t1'
                 writer.write(next_segment + '\n')
+                index += 1
+            else:
+                if sentiment >= 0:
+                    next_segment = ' '.join(segment_tokens)
+                    next_segment += '\t' + str(sentiment)
+                    writer.write(next_segment)
 
 
 def split_file(input_file, out1, out2, percentage, dev_split=False):
@@ -239,20 +288,9 @@ def split_file(input_file, out1, out2, percentage, dev_split=False):
                         else:
                             writer25.write(line)
 
-def testify(input_file, output_file):
-    """ Formats given trial data into test data. """
-    with open(input_file, 'r') as reader:
-        with open(output_file, 'w') as writer:
-            writer.write("index\tsentence\n")
-            index = 0
-            for line in reader:
-                line = line.split("\t")[0]
-                if line != "sentence":
-                    writer.write(f"{index}\t{line}\n")
-                    index += 1
-
 
 if __name__ == "__main__":
     conll_to_tsv('data/train_14k_split_conll.txt','data/SST-3/train.tsv')
-    conll_to_tsv('data/dev_3k_split_conll.txt','data/SST-3/dev.tsv')
-
+    # conll_to_tsv('data/dev_3k_split_conll.txt','data/SST-3/dev.tsv')
+    conll_to_tsv('data/Hindi_test.txt','data/SST-3/dev.tsv',test=True)
+    conll_to_json('data/Hindi_test.txt','data/SST-3/dev_data.json')

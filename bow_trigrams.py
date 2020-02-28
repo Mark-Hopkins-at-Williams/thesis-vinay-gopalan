@@ -1,19 +1,24 @@
-""" The script to train and run the bag-of-words model on a trainset and devset. """
+""" The script to train and run the Bag-of-Words BiGrams extension on a trainset and devset. """
 
 import torch
 import numpy as np
+import copy
 from torch.utils.data import Dataset, DataLoader
 import torch.optim as optim
-from baseline import get_frequencies, create_vocab, create_vectors, get_labels, two_layer_feedforward, simple_accuracy
+from baseline import get_bigram_frequencies, get_trigram_frequencies, get_labels, create_vocab, simple_accuracy
+from baseline import create_bigram_vectors
+from baseline import two_layer_feedforward, three_layer_feedforward, four_layer_feedforward
 
 ##########################################################################################
 # Important Constants
 
 FREQ_THRESHOLD = 15
-BATCH_SIZE = 4
-VOCAB = {}
+BATCH_SIZE = 6
+VOCAB = []
 INPUT_SIZE = 0
-HIDDEN_LAYER = 784
+H1 = 300
+H2 = 180
+H3 = 75
 NUM_EPOCHS = 20
 
 ##########################################################################################
@@ -30,13 +35,15 @@ def make_train_vectors(input_filename):
     """
 
     # Create vectors
-    frequencies = get_frequencies(input_filename)
+    frequencies = get_bigram_frequencies(input_filename)
+    frequencies.update(get_trigram_frequencies(input_filename))
     global VOCAB, INPUT_SIZE
     VOCAB = create_vocab(frequencies, FREQ_THRESHOLD)
-    vecs = create_vectors(input_filename, VOCAB)
+    vecs = create_bigram_vectors(input_filename, VOCAB)
 
     # Set value for input size
-    INPUT_SIZE = len(vecs[0])
+    INPUT_SIZE = len(VOCAB)
+    print(INPUT_SIZE)
 
     # Get labels from file
     labels = get_labels(input_filename)
@@ -51,7 +58,7 @@ def make_test_vectors(input_filename):
     """ 
 
     # Create vectors
-    vecs = create_vectors(input_filename, VOCAB)
+    vecs = create_bigram_vectors(input_filename, VOCAB)
 
     # Get labels from file
     labels = get_labels(input_filename)
@@ -60,8 +67,8 @@ def make_test_vectors(input_filename):
 
     return vecs, labels
 
-class BagOfWordsTrainDataSet(Dataset):
-    """ The Bag-of-words training dataset containing sentence vectors and actual labels. """
+class TriGramsTrainDataSet(Dataset):
+    """ The BiGrams training dataset containing sentence vectors and actual labels. """
     def __init__(self, datafile):
         self.vecs, self.labels = make_train_vectors(datafile)
     
@@ -71,8 +78,8 @@ class BagOfWordsTrainDataSet(Dataset):
     def __getitem__(self, idx):
         return [self.vecs[idx],self.labels[idx]]
 
-class BagOfWordsTestDataSet(Dataset):
-    """ The Bag-of-words testing dataset containing sentence vectors and actual labels. """
+class TriGramsTestDataSet(Dataset):
+    """ The BiGrams testing dataset containing sentence vectors and actual labels. """
     def __init__(self, datafile):
         self.vecs, self.labels = make_test_vectors(datafile)
     
@@ -85,6 +92,8 @@ class BagOfWordsTestDataSet(Dataset):
 
 def train(trainloader, model, criterion, optimizer):
     """ Trains a model on a trainset. """
+    best_model = model
+    best_so_far = -1
     for epoch in range(NUM_EPOCHS):  # loop over the dataset multiple times
         running_loss = 0.0
         for i, data in enumerate(trainloader, 0):
@@ -106,8 +115,14 @@ def train(trainloader, model, criterion, optimizer):
                 print('[%d, %5d] loss: %.3f' %
                     (epoch + 1, i + 1, running_loss / 1000))
                 running_loss = 0.0
-
+        
+        acc = eval(testloader,net,'data/bag-of-words/outs.tsv','data/bag-of-words/preds.tsv',testset.labels)
+        if acc > best_so_far:
+            best_model = copy.deepcopy(model)
+            best_so_far = acc
+    
     print('Finished Training')
+    return best_model
 
 
 def eval(testloader, net, outfile, labelsfile, actual_labels):
@@ -167,33 +182,39 @@ def eval(testloader, net, outfile, labelsfile, actual_labels):
     # COMPUTE AND WRITE ACCURACY TO RESULTS.TXT
         preds = get_labels(labelsfile)
         accur = simple_accuracy(preds,actual_labels)
-        with open('data/bag-of-words/results.txt','w') as results:
+        with open('data/count-words/results.txt','w') as results:
             results.write('acc = %s' % str(accur))
 
         print("Accuracy on dev set: %s" % str(accur))
 
     print("Finished Testing")
+    return accur
 
 if __name__ == "__main__": #### MAIN
     # Set up training
-    trainset = BagOfWordsTrainDataSet('data/SST-3/train.tsv')
+    trainset = TriGramsTrainDataSet('data/bag-of-words/train.tsv')
     trainloader = DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True, num_workers=2)
 
-    net = two_layer_feedforward(INPUT_SIZE, HIDDEN_LAYER)
+    # Set up testing
+    testset = TriGramsTestDataSet('data/bag-of-words/dev.tsv')
+    testloader = DataLoader(testset, batch_size=BATCH_SIZE,
+                                          shuffle=False, num_workers=2)
+
+    # For 2 layer feedforward
+    net = two_layer_feedforward(INPUT_SIZE, H1)
+
+    # For 4 layer feedforward
+    #net = four_layer_feedforward(INPUT_SIZE, H1, H2, H3)
+
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
     print("Starting Training\n")
     # TRAIN!
-    train(trainloader, net, criterion, optimizer)
-
-    # Set up testing
-    testset = BagOfWordsTestDataSet('data/SST-3/dev.tsv')
-    testloader = DataLoader(testset, batch_size=BATCH_SIZE,
-                                          shuffle=False, num_workers=2)
+    trained_model = train(trainloader, net, criterion, optimizer)
 
     print("Starting Testing\n")
 
     # TEST!
-    eval(testloader,net,'outs.tsv','preds.tsv',testset.labels)
+    eval(testloader,trained_model,'data/bag-of-words/outs.tsv','data/bag-of-words/preds.tsv',testset.labels)
