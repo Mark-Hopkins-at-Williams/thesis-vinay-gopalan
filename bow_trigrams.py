@@ -35,7 +35,8 @@ def make_train_vectors(input_filename):
     """
 
     # Create vectors
-    frequencies = get_bigram_frequencies(input_filename).update(get_trigram_frequencies(input_filename))
+    frequencies = get_bigram_frequencies(input_filename)
+    frequencies.update(get_trigram_frequencies(input_filename))
     global VOCAB, INPUT_SIZE
     VOCAB = create_vocab(frequencies, FREQ_THRESHOLD)
     vecs = create_bigram_vectors(input_filename, VOCAB)
