@@ -164,7 +164,7 @@ def create_count_vectors(filename, vocab):
 
 
 ####################################################################################################################
-# Only used in BiGrams Extension
+# Only used in BiGrams
 ####################################################################################################################
 
 def get_bigram_frequencies(filename):
@@ -208,3 +208,36 @@ def create_bigram_vectors(filename, vocab):
                         tweet_tensor[i] = 1
                 tweet_vectors.append(tweet_tensor)
         return tweet_vectors
+
+
+
+####################################################################################################################
+# Only used in TriGrams Extension
+####################################################################################################################
+
+def get_trigram_frequencies(filename):
+    """ Returns a dictionary of the frequencies of all trigrams in a given file. """
+    with open(filename,'r') as reader:
+        frequencies = {}
+        for line in reader:
+            words_in_line = line.split('\t')[0].strip().split(' ')
+            # Make TriGrams
+            for i in range(2,len(words_in_line)-3,3):
+                if i == len(words_in_line) - 1:
+                    trigram1 = words_in_line[i-2] + " " + words_in_line[i-1] + " " + words_in_line[i]
+                    if trigram1 in frequencies:
+                        frequencies[trigram1] += 1
+                    else:
+                        frequencies[trigram1] = 1
+                if i <= len(words_in_line) - 3:
+                    trigram1 = words_in_line[i-2] + " " + words_in_line[i-1] + " " + words_in_line[i]
+                    if trigram1 in frequencies:
+                        frequencies[trigram1] += 1
+                    else:
+                        frequencies[trigram1] = 1
+                    trigram2 = words_in_line[i] + " " +  words_in_line[i+1] + " " +  words_in_line[i+2]
+                    if trigram2 in frequencies:
+                        frequencies[trigram2] += 1
+                    else:
+                        frequencies[trigram2] = 1
+        return frequencies
